@@ -10,10 +10,14 @@ const router = (app) => {
   app.post('/signup', mid.requiresSecure, mid.requiresLogout, controllers.Account.signup);
   app.get('/logout', mid.requiresLogin, controllers.Account.logout);
   app.get('/maker', mid.requiresLogin, controllers.Domo.makerPage);
+  app.get('/account', mid.requiresLogin, controllers.Account.accountPage);
   app.post('/maker', mid.requiresLogin, controllers.Domo.make);
   app.post('/deleteDomo', mid.requiresLogin, controllers.Domo.delete);
   app.post('/linkAccount', mid.requiresLogin, controllers.Account.linkAccount);
   app.post('/updateCompleted', mid.requiresLogin, controllers.Domo.updateCompleted);
+  app.post('/setLinkPass', mid.requiresLogin, controllers.Account.setLinkPass);
+  app.post('/getLinked', mid.requiresLogin, controllers.Account.getLinked);
+  app.post('/newWeek', mid.requiresLogin, controllers.Domo.newWeek);
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
 };
 

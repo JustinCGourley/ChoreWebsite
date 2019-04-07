@@ -13,8 +13,7 @@ const makerPage = (req, res) => {
 };
 
 const makeDomo = (req, res) => {
-  console.log(req.body);
-  if (!req.body.title || !req.body.cost || !req.body.description || !req.body.day) {
+  if (!req.body.title || !req.body.cost || !req.body.day) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
@@ -25,9 +24,8 @@ const makeDomo = (req, res) => {
     owner: req.session.account._id,
     day: req.body.day,
     completed: 'false',
+    weekSet: req.session.account.currentWeek,
   };
-
-  console.log(domoData);
 
   const newDomo = new Domo.DomoModel(domoData);
   const domoPromise = newDomo.save();
@@ -79,7 +77,63 @@ const getDomos = (request, response) => {
       console.log(err);
       return res.status(400).json({ error: 'An error occured' });
     }
-    return res.json({ domos: docs });
+    console.log('===================================================');
+    console.log(docs);
+    const domosForWeek = [];
+    for (let i = 0; i < docs.length; i++) {
+      if (docs[i].weekSet === req.session.account.currentWeek) {
+        domosForWeek.push(docs[i]);
+      }
+    }
+    console.log('===================================================');
+    console.log(domosForWeek);
+    return res.json({ domos: domosForWeek });
+  });
+};
+
+const setupNewWeek = (request, response) => {
+  const req = request;
+  const res = response;
+
+  Domo.DomoModel.findByOwner(req.session.account._id, (err, docs) => {
+    const domos = [];
+    for (let i = 0; i < docs.length; i++) {
+      if (docs[i].weekSet === req.session.account.currentWeek) {
+        domos.push(docs[i]);
+      }
+    }
+    const error = null;
+
+    for (let i = 0; i < domos.length; i++) {
+      const domoData = {
+        title: domos[i].title,
+        cost: domos[i].cost,
+        description: domos[i].description,
+        owner: req.session.account._id,
+        day: domos[i].day,
+        completed: 'false',
+        weekSet: req.session.account.currentWeek + 1,
+      };
+
+      const newDomo = new Domo.DomoModel(domoData);
+      newDomo.save();
+    }
+
+    if (error != null) {
+      return res.json({ status: false, error });
+    }
+
+    const search = { _id: req.session.account._id };
+    const newData = { currentWeek: req.session.account.currentWeek + 1 };
+    return models.Account.AccountModel.findOneAndUpdate(
+      search, newData, { new: true }, (err2, data) => {
+        if (err2) {
+          console.log(err2);
+          return res.json({ status: false, error: err2 });
+        }
+        req.session.account = data;
+        return res.json({ status: true });
+      });
   });
 };
 
@@ -101,3 +155,4 @@ module.exports.makerPage = makerPage;
 module.exports.make = makeDomo;
 module.exports.delete = deleteDomo;
 module.exports.updateCompleted = updateCompleted;
+module.exports.newWeek = setupNewWeek;

@@ -18,7 +18,7 @@ const DomoSchema = new mongoose.Schema({
 
   description: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
     set: setName,
   },
@@ -36,6 +36,11 @@ const DomoSchema = new mongoose.Schema({
 
   day: {
     type: String,
+    required: true,
+  },
+
+  weekSet: {
+    type: Number,
     required: true,
   },
 
@@ -62,7 +67,8 @@ DomoSchema.statics.findByOwner = (ownerID, callback) => {
     owner: convertID(ownerID),
   };
 
-  return DomoModel.find(search).select('title description cost day completed').exec(callback);
+  return DomoModel.find(search).select(
+    'title description cost day completed weekSet').exec(callback);
 };
 
 DomoSchema.statics.remove = (data) => {

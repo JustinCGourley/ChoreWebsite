@@ -32,6 +32,18 @@ const AccountSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  linkPass: {
+    type: String,
+    required: false,
+  },
+  subscription: {
+    type: Boolean,
+    required: true,
+  },
+  currentWeek: {
+    type: Number,
+    required: true,
+  },
   createdDate: {
     type: Date,
     default: Date.now,
@@ -43,6 +55,7 @@ AccountSchema.statics.toAPI = doc => ({
   username: doc.username,
   type: doc.type,
   link: doc.link,
+  currentWeek: doc.currentWeek,
   _id: doc._id,
 });
 
@@ -65,12 +78,24 @@ AccountSchema.statics.findByUsername = (name, callback) => {
   return AccountModel.findOne(search, callback);
 };
 
+AccountSchema.statics.findAllLinked = (link, callback) => {
+  const search = {
+    link,
+  };
+
+  return AccountModel.find(search, callback);
+};
+
 AccountSchema.statics.generateHash = (password, callback) => {
   const salt = crypto.randomBytes(saltLength);
 
   crypto.pbkdf2(password, salt, iterations, keyLength, 'RSA-SHA512', (err, hash) =>
     callback(salt, hash.toString('hex'))
   );
+};
+
+AccountSchema.statics.checkPassword = (doc, password, callback) => {
+  validatePassword(doc, password, callback);
 };
 
 AccountSchema.statics.authenticate = (username, password, callback) =>

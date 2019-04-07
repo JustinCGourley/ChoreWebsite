@@ -1,12 +1,13 @@
 
 let account = {};
+let curDomos = [];
 const handleDomo = (e) => {
     e.preventDefault();
 
     $("#domoMessage").animate({width: 'hide'},350);
 
     if ($("#domoName").val() == '' || $("#domoAge").val() == '' || $('#domoDesc').val() == ''){
-        handleError("All fields are required");
+        handleError("All * fields are required");
         return false;
     }
 
@@ -17,11 +18,15 @@ const handleDomo = (e) => {
 };
 
 const handleDelete = (e, domo) => {
-    console.log(domo);
     let token = document.querySelector('#csrfToken').value;
     let data = `id=${domo._id}&_csrf=${token}`;
 
-    sendAjax('POST', '/deleteDomo', data, function(){
+    sendAjax('POST', '/deleteDomo', data, function(err){
+        if (err.done === false)
+        {
+            console.log(err);
+            handleError("Unable to delete domo");
+        }
         loadDomosFromServer();
     });
 
@@ -54,8 +59,8 @@ const handleAccountLink = (e, account) => {
 
     $("#domoMessage").animate({width: 'hide'}, 350);
 
-    if ($('#linkName').val() == ''){
-        handleError("Must enter a username to link!");
+    if ($('#linkName').val() == '' || $('#linkPass').val() == ''){
+        handleError("Fill out everything to link!");
         return false;
     }
 
@@ -73,6 +78,23 @@ const handleAccountLink = (e, account) => {
     return false;
 };
 
+const handleNextWeek = (e) => {
+    e.preventDefault();
+
+    let token = document.querySelector('#csrfToken').value;
+    let data = `_csrf=${token}`;
+
+    sendAjax('POST', '/newWeek', data, function(err){
+        if (err.status === false)
+        {
+            console.log("ERROR");
+            handleError(err.error);
+        }
+
+        getToken();
+    });
+};
+
 const DomoForm = (props) => {
     return (
         <form id="domoForm"
@@ -83,30 +105,81 @@ const DomoForm = (props) => {
         className="domoForm"
         >
         
-        <label htmlFor="title">Title: </label>
-        <input id="domoName" type="text" name="title" placeholder="Chore Title"/>
-        <label id= "domoDescLabel" htmlFor="description">Description: </label>
-        <input id="domoDescription" type="text" name="description" placeholder="Chore Description"/>
-        <label htmlFor="cost">Cost: </label>
-        <input id="domoAge" type="text" name="cost" placeholder="Chore Cost"/>
-        <label htmlFor="day">Day: </label>
-        <select id="domoDay" name="day">
-            <option value="monday">Monday</option>
-            <option value="tuesday">Tuesday</option>
-            <option value="wednesday">Wednesday</option>
-            <option value="thursday">Thursday</option>
-            <option value="friday">Friday</option>
-            <option value="saturday">Saturday</option>
-            <option value="sunday">Sunday</option>
-        </select>
-        <input id="csrfToken" type="hidden" name="_csrf" value={props.csrf} />
-        <input className="makeDomoSubmit" type="submit" value="Make Domo"/>
+            <label htmlFor="title">*Title: </label>
+            <input id="domoName" type="text" name="title" placeholder="Chore Title"/>
+            <br/>
+            <label id= "domoDescLabel" htmlFor="description">Description: </label>
+            <input id="domoDescription" type="text" name="description" placeholder="Chore Description"/>
+            <br/>
+            <label htmlFor="cost">*Cost: </label>
+            <input id="domoCost" type="text" name="cost" placeholder="Chore Cost"/>
+            <br/>
+            <label htmlFor="day">*Day: </label>
+            <select id="domoDay" name="day">
+                <option value="monday">Monday</option>
+                <option value="tuesday">Tuesday</option>
+                <option value="wednesday">Wednesday</option>
+                <option value="thursday">Thursday</option>
+                <option value="friday">Friday</option>
+                <option value="saturday">Saturday</option>
+                <option value="sunday">Sunday</option>
+            </select>
+            <input id="csrfToken" type="hidden" name="_csrf" value={props.csrf} />
+            <br/>
+            <input className="makeDomoSubmit" type="submit" value="Make Chore"/>
         </form>
     );
 };
 
+const ChildInfo = (props) => {
+
+    if (props.data.length <= 0)
+    {
+        return(
+            <div>
+                <h3>None Linked</h3>
+            </div>
+        );    
+    }
+
+    const childNodes = props.data.map(function(child) {
+        return(
+            <div key={child._id} className="child">
+                <h2>Account: {child.username}</h2>
+                <h3 className="childEarned">Earned Amount: $0</h3>
+            </div>
+        );
+    });
+
+    return (
+        <div className="childList">
+            {childNodes}
+            <input id="csrfToken" type="hidden" name="_csrf" value={props.csrf} />
+        </div>
+    );
+};
+
+const ChoreInfo = (props) => {
+    return(
+        <div className="ChoreInfo">
+            <h1>Week {account.currentWeek}</h1>
+            <h2>Linked Accounts:</h2>
+            <ChildInfo csrf={props.csrf} data={props.data}/>
+            <input type="submit" onClick={handleNextWeek} className="makeDomoSubmit" value="Finish Week"/>
+        </div>
+    );
+};
+
+const DomoMake = (props) => {
+    return (
+        <div>
+            <ChoreInfo csrf={props.csrf} data={props.data}/>
+            <DomoForm csrf={props.csrf} />
+        </div>
+    );
+};
+
 const CompletedCheck = (props) => {
-    console.log("completed: " + props.completed);
     return(
         <div className = "domoCompleted">
             <h3 className = {(props.completed !== 'false') ? "completedDesc domoIsCompleted" : "completedDesc domoNotCompleted"} >
@@ -127,13 +200,12 @@ const DeleteOption = (props) => {
 
 const DomoList = function(props) {
     
-
     const domoNodes = props.domos.map(function(domo) {
         return(
             <div key={domo._id} className="domo">
             <h3 className="domoCost">${domo.cost}</h3>
             <h3 className="domoName">{domo.title}</h3>
-            <h3 className="domoDesc">{domo.description}</h3>
+            {(domo.description) ? <h3 className="domoDesc">{domo.description}</h3> : null}
             <CompletedCheck completed={domo.completed} onClick={(e) => handleCheckClick(e,domo)} />
             {account.type === "Parent" ? <DeleteOption info={domo}/> : null}
             </div>
@@ -241,6 +313,10 @@ const LinkView = function(props) {
             
             <label htmlFor="user">Parents Username: </label>
             <input id="linkName" type="text" name="name" placeholder="Parents Username"/>
+            <br/>
+            <label htmlFor="linkPass">Link Password</label>
+            <input id="linkPass" type="text" name="pass" placeholder="Link Password"/>
+            <br/>
             <input id="csrfToken" type="hidden" name="_csrf" value={props.csrf} />
             <input className="linkUserSubmit" type="submit" value="Link Account"/>
             </form>
@@ -248,13 +324,27 @@ const LinkView = function(props) {
     );
 }
 
+const loadLinkedAccounts = () => {
+    let token = document.querySelector('#csrfToken').value;
+
+    let dataSend = `link=${account.link}&_csrf=${token}`;
+
+    sendAjax('POST', '/getLinked', dataSend, (data) => {
+
+        ReactDOM.render(
+            <DomoMake csrf={token} data={data.data} />, document.querySelector('#makeDomo')
+        )
+
+    });
+};
+
 const loadDomosFromServer = () => {
 
     let token = document.querySelector('#csrfToken').value;
 
     let dataSend = `link=${account.link}&type=${account.type}&_csrf=${token}`;
     sendAjax('POST', '/getDomos', dataSend, (data) => {
-
+        curDomos = data.domos;
         ReactDOM.render(
             <DomoListDay domos={data.domos} csrf={token}/>, document.querySelector("#domos")
         );
@@ -292,7 +382,7 @@ const setupViews = function(csrf)
     else
     {
         ReactDOM.render(
-            <DomoForm csrf={csrf} />, document.querySelector("#makeDomo")
+            <DomoMake csrf={csrf} data={[]}/>, document.querySelector("#makeDomo")
         );
         
         ReactDOM.render(
@@ -301,6 +391,7 @@ const setupViews = function(csrf)
         
 
         loadDomosFromServer();
+        loadLinkedAccounts();
     }
 };
 

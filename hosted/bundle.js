@@ -1,13 +1,14 @@
 "use strict";
 
 var account = {};
+var curDomos = [];
 var handleDomo = function handleDomo(e) {
     e.preventDefault();
 
     $("#domoMessage").animate({ width: 'hide' }, 350);
 
     if ($("#domoName").val() == '' || $("#domoAge").val() == '' || $('#domoDesc').val() == '') {
-        handleError("All fields are required");
+        handleError("All * fields are required");
         return false;
     }
 
@@ -18,11 +19,14 @@ var handleDomo = function handleDomo(e) {
 };
 
 var handleDelete = function handleDelete(e, domo) {
-    console.log(domo);
     var token = document.querySelector('#csrfToken').value;
     var data = "id=" + domo._id + "&_csrf=" + token;
 
-    sendAjax('POST', '/deleteDomo', data, function () {
+    sendAjax('POST', '/deleteDomo', data, function (err) {
+        if (err.done === false) {
+            console.log(err);
+            handleError("Unable to delete domo");
+        }
         loadDomosFromServer();
     });
 
@@ -53,8 +57,8 @@ var handleAccountLink = function handleAccountLink(e, account) {
 
     $("#domoMessage").animate({ width: 'hide' }, 350);
 
-    if ($('#linkName').val() == '') {
-        handleError("Must enter a username to link!");
+    if ($('#linkName').val() == '' || $('#linkPass').val() == '') {
+        handleError("Fill out everything to link!");
         return false;
     }
 
@@ -67,6 +71,22 @@ var handleAccountLink = function handleAccountLink(e, account) {
     });
 
     return false;
+};
+
+var handleNextWeek = function handleNextWeek(e) {
+    e.preventDefault();
+
+    var token = document.querySelector('#csrfToken').value;
+    var data = "_csrf=" + token;
+
+    sendAjax('POST', '/newWeek', data, function (err) {
+        if (err.status === false) {
+            console.log("ERROR");
+            handleError(err.error);
+        }
+
+        getToken();
+    });
 };
 
 var DomoForm = function DomoForm(props) {
@@ -82,25 +102,28 @@ var DomoForm = function DomoForm(props) {
         React.createElement(
             "label",
             { htmlFor: "title" },
-            "Title: "
+            "*Title: "
         ),
         React.createElement("input", { id: "domoName", type: "text", name: "title", placeholder: "Chore Title" }),
+        React.createElement("br", null),
         React.createElement(
             "label",
             { id: "domoDescLabel", htmlFor: "description" },
             "Description: "
         ),
         React.createElement("input", { id: "domoDescription", type: "text", name: "description", placeholder: "Chore Description" }),
+        React.createElement("br", null),
         React.createElement(
             "label",
             { htmlFor: "cost" },
-            "Cost: "
+            "*Cost: "
         ),
-        React.createElement("input", { id: "domoAge", type: "text", name: "cost", placeholder: "Chore Cost" }),
+        React.createElement("input", { id: "domoCost", type: "text", name: "cost", placeholder: "Chore Cost" }),
+        React.createElement("br", null),
         React.createElement(
             "label",
             { htmlFor: "day" },
-            "Day: "
+            "*Day: "
         ),
         React.createElement(
             "select",
@@ -142,12 +165,81 @@ var DomoForm = function DomoForm(props) {
             )
         ),
         React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf }),
-        React.createElement("input", { className: "makeDomoSubmit", type: "submit", value: "Make Domo" })
+        React.createElement("br", null),
+        React.createElement("input", { className: "makeDomoSubmit", type: "submit", value: "Make Chore" })
+    );
+};
+
+var ChildInfo = function ChildInfo(props) {
+
+    if (props.data.length <= 0) {
+        return React.createElement(
+            "div",
+            null,
+            React.createElement(
+                "h3",
+                null,
+                "None Linked"
+            )
+        );
+    }
+
+    var childNodes = props.data.map(function (child) {
+        return React.createElement(
+            "div",
+            { key: child._id, className: "child" },
+            React.createElement(
+                "h2",
+                null,
+                "Account: ",
+                child.username
+            ),
+            React.createElement(
+                "h3",
+                { className: "childEarned" },
+                "Earned Amount: $0"
+            )
+        );
+    });
+
+    return React.createElement(
+        "div",
+        { className: "childList" },
+        childNodes,
+        React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf })
+    );
+};
+
+var ChoreInfo = function ChoreInfo(props) {
+    return React.createElement(
+        "div",
+        { className: "ChoreInfo" },
+        React.createElement(
+            "h1",
+            null,
+            "Week ",
+            account.currentWeek
+        ),
+        React.createElement(
+            "h2",
+            null,
+            "Linked Accounts:"
+        ),
+        React.createElement(ChildInfo, { csrf: props.csrf, data: props.data }),
+        React.createElement("input", { type: "submit", onClick: handleNextWeek, className: "makeDomoSubmit", value: "Finish Week" })
+    );
+};
+
+var DomoMake = function DomoMake(props) {
+    return React.createElement(
+        "div",
+        null,
+        React.createElement(ChoreInfo, { csrf: props.csrf, data: props.data }),
+        React.createElement(DomoForm, { csrf: props.csrf })
     );
 };
 
 var CompletedCheck = function CompletedCheck(props) {
-    console.log("completed: " + props.completed);
     return React.createElement(
         "div",
         { className: "domoCompleted" },
@@ -185,11 +277,11 @@ var DomoList = function DomoList(props) {
                 { className: "domoName" },
                 domo.title
             ),
-            React.createElement(
+            domo.description ? React.createElement(
                 "h3",
                 { className: "domoDesc" },
                 domo.description
-            ),
+            ) : null,
             React.createElement(CompletedCheck, { completed: domo.completed, onClick: function onClick(e) {
                     return handleCheckClick(e, domo);
                 } }),
@@ -352,10 +444,29 @@ var LinkView = function LinkView(props) {
                 "Parents Username: "
             ),
             React.createElement("input", { id: "linkName", type: "text", name: "name", placeholder: "Parents Username" }),
+            React.createElement("br", null),
+            React.createElement(
+                "label",
+                { htmlFor: "linkPass" },
+                "Link Password"
+            ),
+            React.createElement("input", { id: "linkPass", type: "text", name: "pass", placeholder: "Link Password" }),
+            React.createElement("br", null),
             React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf }),
             React.createElement("input", { className: "linkUserSubmit", type: "submit", value: "Link Account" })
         )
     );
+};
+
+var loadLinkedAccounts = function loadLinkedAccounts() {
+    var token = document.querySelector('#csrfToken').value;
+
+    var dataSend = "link=" + account.link + "&_csrf=" + token;
+
+    sendAjax('POST', '/getLinked', dataSend, function (data) {
+
+        ReactDOM.render(React.createElement(DomoMake, { csrf: token, data: data.data }), document.querySelector('#makeDomo'));
+    });
 };
 
 var loadDomosFromServer = function loadDomosFromServer() {
@@ -364,7 +475,7 @@ var loadDomosFromServer = function loadDomosFromServer() {
 
     var dataSend = "link=" + account.link + "&type=" + account.type + "&_csrf=" + token;
     sendAjax('POST', '/getDomos', dataSend, function (data) {
-
+        curDomos = data.domos;
         ReactDOM.render(React.createElement(DomoListDay, { domos: data.domos, csrf: token }), document.querySelector("#domos"));
 
         if (account.type === 'Child' && account.link !== 'none') {
@@ -388,11 +499,12 @@ var setupViews = function setupViews(csrf) {
 
         loadDomosFromServer();
     } else {
-        ReactDOM.render(React.createElement(DomoForm, { csrf: csrf }), document.querySelector("#makeDomo"));
+        ReactDOM.render(React.createElement(DomoMake, { csrf: csrf, data: [] }), document.querySelector("#makeDomo"));
 
         ReactDOM.render(React.createElement(DomoListDay, { domos: [], csrf: csrf }), document.querySelector("#domos"));
 
         loadDomosFromServer();
+        loadLinkedAccounts();
     }
 };
 
