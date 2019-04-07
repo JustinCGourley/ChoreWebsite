@@ -79,11 +79,7 @@ AccountSchema.statics.findByUsername = (name, callback) => {
 };
 
 AccountSchema.statics.findAllLinked = (link, callback) => {
-  const search = {
-    link,
-  };
-
-  return AccountModel.find(search, callback);
+  return AccountModel.find(link, callback);
 };
 
 AccountSchema.statics.generateHash = (password, callback) => {

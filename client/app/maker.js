@@ -132,7 +132,7 @@ const DomoForm = (props) => {
 };
 
 const ChildInfo = (props) => {
-
+    console.log(props);
     if (props.data.length <= 0)
     {
         return(
@@ -330,7 +330,12 @@ const loadLinkedAccounts = () => {
     let dataSend = `link=${account.link}&_csrf=${token}`;
 
     sendAjax('POST', '/getLinked', dataSend, (data) => {
-
+        console.log(data);
+        if (data.status === false)
+        {
+            handleError('Error when loading linked accounts');
+            return;
+        }
         ReactDOM.render(
             <DomoMake csrf={token} data={data.data} />, document.querySelector('#makeDomo')
         )

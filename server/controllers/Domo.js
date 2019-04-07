@@ -77,16 +77,12 @@ const getDomos = (request, response) => {
       console.log(err);
       return res.status(400).json({ error: 'An error occured' });
     }
-    console.log('===================================================');
-    console.log(docs);
     const domosForWeek = [];
     for (let i = 0; i < docs.length; i++) {
       if (docs[i].weekSet === req.session.account.currentWeek) {
         domosForWeek.push(docs[i]);
       }
     }
-    console.log('===================================================');
-    console.log(domosForWeek);
     return res.json({ domos: domosForWeek });
   });
 };

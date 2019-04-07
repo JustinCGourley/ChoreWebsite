@@ -165,6 +165,7 @@ const getAllLinked = (request, response) => {
 
   Account.AccountModel.findAllLinked(search, (err, data) => {
     if (err) {
+      console.log(err);
       return res.json({ status: false, error: err });
     }
 

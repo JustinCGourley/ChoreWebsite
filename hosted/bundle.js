@@ -171,7 +171,7 @@ var DomoForm = function DomoForm(props) {
 };
 
 var ChildInfo = function ChildInfo(props) {
-
+    console.log(props);
     if (props.data.length <= 0) {
         return React.createElement(
             "div",
@@ -464,7 +464,11 @@ var loadLinkedAccounts = function loadLinkedAccounts() {
     var dataSend = "link=" + account.link + "&_csrf=" + token;
 
     sendAjax('POST', '/getLinked', dataSend, function (data) {
-
+        console.log(data);
+        if (data.status === false) {
+            handleError('Error when loading linked accounts');
+            return;
+        }
         ReactDOM.render(React.createElement(DomoMake, { csrf: token, data: data.data }), document.querySelector('#makeDomo'));
     });
 };
