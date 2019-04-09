@@ -11,6 +11,7 @@ const router = (app) => {
   app.get('/logout', mid.requiresLogin, controllers.Account.logout);
   app.get('/maker', mid.requiresLogin, controllers.Domo.makerPage);
   app.get('/account', mid.requiresLogin, controllers.Account.accountPage);
+  app.get('/history', mid.requiresLogin, controllers.Domo.historyPage);
   app.post('/maker', mid.requiresLogin, controllers.Domo.make);
   app.post('/deleteDomo', mid.requiresLogin, controllers.Domo.delete);
   app.post('/linkAccount', mid.requiresLogin, controllers.Account.linkAccount);

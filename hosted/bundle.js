@@ -85,7 +85,10 @@ var handleNextWeek = function handleNextWeek(e) {
             handleError(err.error);
         }
 
-        getToken();
+        sendAjax('GET', '/getCurrentAccount', null, function (result) {
+            account = result.data;
+            loadDomosFromServer();
+        });
     });
 };
 
@@ -118,7 +121,7 @@ var DomoForm = function DomoForm(props) {
             { htmlFor: "cost" },
             "*Cost: "
         ),
-        React.createElement("input", { id: "domoCost", type: "text", name: "cost", placeholder: "Chore Cost" }),
+        React.createElement("input", { id: "domoCost", type: "number", min: "0.0", step: "0.01", name: "cost", placeholder: "Chore Cost" }),
         React.createElement("br", null),
         React.createElement(
             "label",
@@ -170,8 +173,17 @@ var DomoForm = function DomoForm(props) {
     );
 };
 
+var getAmountForChild = function getAmountForChild(name) {
+    var amount = 0.0;
+    for (var i = 0; i < curDomos.length; i++) {
+        if (curDomos[i].completed === name) {
+            amount += curDomos[i].cost;
+        }
+    }
+    return amount;
+};
+
 var ChildInfo = function ChildInfo(props) {
-    console.log(props);
     if (props.data.length <= 0) {
         return React.createElement(
             "div",
@@ -197,7 +209,8 @@ var ChildInfo = function ChildInfo(props) {
             React.createElement(
                 "h3",
                 { className: "childEarned" },
-                "Earned Amount: $0"
+                "Earned Amount: $",
+                getAmountForChild(child.username)
             )
         );
     });
@@ -214,6 +227,11 @@ var ChoreInfo = function ChoreInfo(props) {
     return React.createElement(
         "div",
         { className: "ChoreInfo" },
+        account.linkSet ? null : React.createElement(
+            "a",
+            { id: "setLinkPass", href: "/account" },
+            "Please set your link password on your account page!"
+        ),
         React.createElement(
             "h1",
             null,
@@ -329,6 +347,7 @@ var sortDomosByDay = function sortDomosByDay(domos) {
 };
 
 var DomoListDay = function DomoListDay(props) {
+
     if (props.domos.length === 0) {
         return React.createElement(
             "div",
@@ -464,7 +483,6 @@ var loadLinkedAccounts = function loadLinkedAccounts() {
     var dataSend = "link=" + account.link + "&_csrf=" + token;
 
     sendAjax('POST', '/getLinked', dataSend, function (data) {
-        console.log(data);
         if (data.status === false) {
             handleError('Error when loading linked accounts');
             return;
@@ -479,11 +497,15 @@ var loadDomosFromServer = function loadDomosFromServer() {
 
     var dataSend = "link=" + account.link + "&type=" + account.type + "&_csrf=" + token;
     sendAjax('POST', '/getDomos', dataSend, function (data) {
-        curDomos = data.domos;
         ReactDOM.render(React.createElement(DomoListDay, { domos: data.domos, csrf: token }), document.querySelector("#domos"));
 
         if (account.type === 'Child' && account.link !== 'none') {
             document.querySelector('#makeDomo').innerHTML = "";
+        }
+
+        curDomos = data.domos;
+        if (account.type === 'Parent') {
+            loadLinkedAccounts();
         }
     });
 };
@@ -508,7 +530,6 @@ var setupViews = function setupViews(csrf) {
         ReactDOM.render(React.createElement(DomoListDay, { domos: [], csrf: csrf }), document.querySelector("#domos"));
 
         loadDomosFromServer();
-        loadLinkedAccounts();
     }
 };
 

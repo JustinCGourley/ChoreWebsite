@@ -12,6 +12,16 @@ const makerPage = (req, res) => {
   });
 };
 
+const historyPage = (req, res) => {
+  Domo.DomoModel.findByOwner(req.session.account._id, (err, docs) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({ error: 'An error occured' });
+    }
+    return res.render('appHistory', { domos: docs, csrfToken: req.csrfToken() });
+  });
+};
+
 const makeDomo = (req, res) => {
   if (!req.body.title || !req.body.cost || !req.body.day) {
     return res.status(400).json({ error: 'All fields are required.' });
@@ -60,6 +70,16 @@ const updateCompleted = (request, response) => {
   });
 };
 
+const sortDomosByWeek = (res, domos, week) => {
+  const domosForWeek = [];
+  for (let i = 0; i < domos.length; i++) {
+    if (`${domos[i].weekSet}` === `${week}`) {
+      domosForWeek.push(domos[i]);
+    }
+  }
+  return res.json({ domos: domosForWeek });
+};
+
 const getDomos = (request, response) => {
   const req = request;
   const res = response;
@@ -67,23 +87,29 @@ const getDomos = (request, response) => {
   let accountGrab = req.session.account._id;
 
   if (req.body.type === 'Child') {
-    console.log('grabbing from child');
     accountGrab = req.body.link;
   }
 
-  console.log(`looking from ${accountGrab}`);
   return Domo.DomoModel.findByOwner(accountGrab, (err, docs) => {
     if (err) {
       console.log(err);
       return res.status(400).json({ error: 'An error occured' });
     }
-    const domosForWeek = [];
-    for (let i = 0; i < docs.length; i++) {
-      if (docs[i].weekSet === req.session.account.currentWeek) {
-        domosForWeek.push(docs[i]);
-      }
+
+    if (req.body.type === 'Child') {
+      const searchQuery = { _id: accountGrab };
+      return models.Account.AccountModel.findOne(searchQuery, (err2, parentAccount) => {
+        if (err2) {
+          console.log(`Error: ${err2}`);
+          return res.status(400).json({ error: err2, status: false });
+        }
+        const week = parentAccount.currentWeek;
+        return sortDomosByWeek(res, docs, week);
+      });
     }
-    return res.json({ domos: domosForWeek });
+
+    const week = (req.body.week) ? req.body.week : req.session.account.currentWeek;
+    return sortDomosByWeek(res, docs, week);
   });
 };
 
@@ -152,3 +178,4 @@ module.exports.make = makeDomo;
 module.exports.delete = deleteDomo;
 module.exports.updateCompleted = updateCompleted;
 module.exports.newWeek = setupNewWeek;
+module.exports.historyPage = historyPage;

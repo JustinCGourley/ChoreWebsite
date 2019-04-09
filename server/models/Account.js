@@ -78,9 +78,7 @@ AccountSchema.statics.findByUsername = (name, callback) => {
   return AccountModel.findOne(search, callback);
 };
 
-AccountSchema.statics.findAllLinked = (link, callback) => {
-  return AccountModel.find(link, callback);
-};
+AccountSchema.statics.findAllLinked = (link, callback) => AccountModel.find(link, callback);
 
 AccountSchema.statics.generateHash = (password, callback) => {
   const salt = crypto.randomBytes(saltLength);

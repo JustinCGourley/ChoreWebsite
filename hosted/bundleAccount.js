@@ -3,20 +3,57 @@
 var account = {};
 
 var LinkedAccounts = function LinkedAccounts(props) {
+    if (props.data.length === 0) {
+        return React.createElement(
+            "div",
+            null,
+            React.createElement(
+                "h2",
+                null,
+                "Linked Accounts:"
+            ),
+            React.createElement(
+                "h3",
+                null,
+                "None"
+            )
+        );
+    }
+
+    var childNodes = props.data.map(function (child) {
+        return React.createElement(
+            "div",
+            { key: child._id, className: "childAccount" },
+            React.createElement(
+                "h3",
+                null,
+                "Account: ",
+                child.username
+            )
+        );
+    });
+
     return React.createElement(
         "div",
-        null,
-        React.createElement(
-            "h2",
-            null,
-            "Linked Accounts:"
-        ),
-        React.createElement(
-            "h3",
-            null,
-            "None"
-        )
+        { className: "childListAccount" },
+        childNodes,
+        React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf })
     );
+};
+
+var loadLinkedAccounts = function loadLinkedAccounts() {
+    var token = document.querySelector('#csrfToken').value;
+
+    var dataSend = "link=" + account.link + "&_csrf=" + token;
+
+    sendAjax('POST', '/getLinked', dataSend, function (data) {
+        if (data.status === false) {
+            handleError('Error when loading linked accounts');
+            return;
+        }
+
+        showViews(token, data.data);
+    });
 };
 
 var handleLinkPass = function handleLinkPass(e) {
@@ -83,7 +120,16 @@ var FormView = function FormView(props) {
             null,
             "Account linked to: ",
             account.link
-        ) : React.createElement(LinkedAccounts, { csrf: props.csrf }),
+        ) : React.createElement(
+            "div",
+            null,
+            React.createElement(
+                "h2",
+                null,
+                "Linked Accounts"
+            ),
+            React.createElement(LinkedAccounts, { data: props.data, csrf: props.csrf })
+        ),
         React.createElement("br", null),
         account.type === 'Parent' ? React.createElement(LinkPass, { csrf: props.csrf }) : null,
         React.createElement("br", null),
@@ -98,7 +144,9 @@ var FormView = function FormView(props) {
 };
 
 var showViews = function showViews(csrf) {
-    ReactDOM.render(React.createElement(FormView, { csrf: csrf }), document.querySelector('#account'));
+    var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+    ReactDOM.render(React.createElement(FormView, { csrf: csrf, data: data }), document.querySelector('#account'));
 };
 
 var setup = function setup(csrf) {
@@ -106,6 +154,9 @@ var setup = function setup(csrf) {
     sendAjax('GET', 'getCurrentAccount', null, function (result) {
         account = result.data;
         showViews(csrf);
+        if (account.type === 'Parent') {
+            loadLinkedAccounts();
+        }
     });
 };
 

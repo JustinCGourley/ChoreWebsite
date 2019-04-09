@@ -6,6 +6,7 @@ html, body {
     overflow-x: hidden;
     /* background-color: black;
     color: white; */
+    background-color: rgb(218, 218, 240);
 }
 
 #logo {
@@ -69,7 +70,7 @@ nav:nth-child(1) {
     text-align: right;
 }
 
-.domoForm input[type=text] {
+.domoForm input[type=text], input[type=number] {
     display: inline-block;
     width: 50%;
     margin-left: 20px;
@@ -208,6 +209,7 @@ nav:nth-child(1) {
     border-radius: 4px;
     margin-left: 10%;
     margin-bottom: 100px;
+    margin-top: 20px;
 }
 
 .domo {
@@ -361,7 +363,71 @@ h3.domoCost{
     margin-top: 10px;
 }
 
+.child h3{
+    font-weight: normal;
+    text-decoration: none;
+}
+
 .childEarned{
     color: green;
     margin-left: 5%;
+}
+
+#setLinkPass{
+    color: red;
+    text-decoration: underline;
+    font-size: 1.5em;
+}
+
+#setLinkPass:hover
+{
+    color: rgb(143, 34, 34);
+}
+
+#main{
+    width: 50%;
+    margin: auto;
+    margin-top: 20px;
+}
+
+.earningsHistory{
+    width: 50%;
+    margin: auto;
+}
+
+.historyControls{
+    width: 50%;
+    margin: auto;
+    background-color: grey;
+    border: 2px solid darkgrey;
+    border-radius: 20px;
+}
+
+.historyControls input{
+    display: inline-block;
+    margin-left: 5%;
+    margin-right: 5%;
+    width: 20%;
+    height: 5%;
+    transition: background-color 0.4s ease;
+    background-color: #55acee;
+    border-radius: 2px;
+    color: white;
+    text-decoration: none;
+    position: relative;
+    border-radius: 10px;
+}
+
+.historyControls input:hover{
+    transition: background-color 0.4s ease;
+    background-color: #338acc;
+}
+
+.historyControls h1{
+    display: inline-block;
+    width: 40%;
+}
+
+#dontShow{
+    visibility: hidden;
 }

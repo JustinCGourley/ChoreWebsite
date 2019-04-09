@@ -91,7 +91,10 @@ const handleNextWeek = (e) => {
             handleError(err.error);
         }
 
-        getToken();
+        sendAjax('GET', '/getCurrentAccount', null, (result) => {
+            account = result.data;
+            loadDomosFromServer();
+        });
     });
 };
 
@@ -112,7 +115,7 @@ const DomoForm = (props) => {
             <input id="domoDescription" type="text" name="description" placeholder="Chore Description"/>
             <br/>
             <label htmlFor="cost">*Cost: </label>
-            <input id="domoCost" type="text" name="cost" placeholder="Chore Cost"/>
+            <input id="domoCost" type="number" min="0.0" step="0.01" name="cost" placeholder="Chore Cost"/>
             <br/>
             <label htmlFor="day">*Day: </label>
             <select id="domoDay" name="day">
@@ -131,8 +134,19 @@ const DomoForm = (props) => {
     );
 };
 
+const getAmountForChild = (name) => {
+    let amount = 0.0;
+    for (let i = 0; i < curDomos.length; i++)
+    {
+        if (curDomos[i].completed === name)
+        {
+            amount += curDomos[i].cost;
+        }
+    }
+    return amount;
+};
+
 const ChildInfo = (props) => {
-    console.log(props);
     if (props.data.length <= 0)
     {
         return(
@@ -146,7 +160,7 @@ const ChildInfo = (props) => {
         return(
             <div key={child._id} className="child">
                 <h2>Account: {child.username}</h2>
-                <h3 className="childEarned">Earned Amount: $0</h3>
+                <h3 className="childEarned">Earned Amount: ${getAmountForChild(child.username)}</h3>
             </div>
         );
     });
@@ -162,6 +176,7 @@ const ChildInfo = (props) => {
 const ChoreInfo = (props) => {
     return(
         <div className="ChoreInfo">
+            {(account.linkSet) ? null : <a id="setLinkPass" href="/account">Please set your link password on your account page!</a>}
             <h1>Week {account.currentWeek}</h1>
             <h2>Linked Accounts:</h2>
             <ChildInfo csrf={props.csrf} data={props.data}/>
@@ -254,6 +269,7 @@ const sortDomosByDay = (domos) => {
 }
 
 const DomoListDay = function(props){
+
     if (props.domos.length === 0) {
         return (
             <div className="domoList">
@@ -297,7 +313,7 @@ const DomoListDay = function(props){
             </div>
         </div>
     );
-}
+};
 
 const LinkView = function(props) {
     return (
@@ -330,7 +346,6 @@ const loadLinkedAccounts = () => {
     let dataSend = `link=${account.link}&_csrf=${token}`;
 
     sendAjax('POST', '/getLinked', dataSend, (data) => {
-        console.log(data);
         if (data.status === false)
         {
             handleError('Error when loading linked accounts');
@@ -349,7 +364,6 @@ const loadDomosFromServer = () => {
 
     let dataSend = `link=${account.link}&type=${account.type}&_csrf=${token}`;
     sendAjax('POST', '/getDomos', dataSend, (data) => {
-        curDomos = data.domos;
         ReactDOM.render(
             <DomoListDay domos={data.domos} csrf={token}/>, document.querySelector("#domos")
         );
@@ -357,6 +371,12 @@ const loadDomosFromServer = () => {
         if (account.type === 'Child' && account.link !== 'none')
         {
             document.querySelector('#makeDomo').innerHTML = "";
+        }
+
+        curDomos = data.domos;
+        if (account.type === 'Parent')
+        {
+            loadLinkedAccounts();
         }
     });
 };
@@ -396,7 +416,6 @@ const setupViews = function(csrf)
         
 
         loadDomosFromServer();
-        loadLinkedAccounts();
     }
 };
 

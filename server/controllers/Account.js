@@ -121,6 +121,8 @@ const getCurrentAccount = (request, response) => {
 
     if (accountData.type === 'Child') {
       accountData.link = data.link;
+    } else {
+      accountData.linkSet = (data.linkPass === 'none');
     }
 
     res.json({ data: accountData });
