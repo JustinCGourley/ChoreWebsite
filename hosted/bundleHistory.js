@@ -99,7 +99,7 @@ var DomoListDay = function DomoListDay(props) {
 
     return React.createElement(
         "div",
-        null,
+        { className: "dayContainer" },
         React.createElement(
             "div",
             { className: "day" },
@@ -270,7 +270,7 @@ var Controls = function Controls(props) {
         React.createElement(
             "h1",
             null,
-            "Current Week: ",
+            "Week: ",
             week
         ),
         React.createElement("input", { type: "submit", onClick: function onClick(e) {
@@ -280,10 +280,66 @@ var Controls = function Controls(props) {
     );
 };
 
+var ChildShow = function ChildShow(props) {
+    return React.createElement(
+        "div",
+        { className: "baseView" },
+        React.createElement(
+            "h1",
+            null,
+            "This view is only available for your parent"
+        )
+    );
+};
+
+var SubscribeView = function SubscribeView(props) {
+    return React.createElement(
+        "div",
+        { className: "historySubView" },
+        React.createElement(
+            "h1",
+            null,
+            "History is only available for subscribers"
+        ),
+        React.createElement(
+            "h3",
+            null,
+            "A subscription is only $10 a year!"
+        ),
+        React.createElement(
+            "p",
+            null,
+            "What do I get?"
+        ),
+        React.createElement(
+            "p",
+            null,
+            "+ Access to history"
+        ),
+        React.createElement(
+            "p",
+            null,
+            "+ No ads"
+        ),
+        React.createElement(
+            "a",
+            { id: "setLinkPass", href: "/account" },
+            "Go Subscribe!"
+        )
+    );
+};
+
 var showViews = function showViews(csrf) {
     var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-    if (account.type === 'Child') {} else {
+    if (account.type === 'Child') {
+        ReactDOM.render(React.createElement(ChildShow, null), document.querySelector('#main'));
+    } else {
+        console.log(account);
+        if (account.subscription === false) {
+            ReactDOM.render(React.createElement(SubscribeView, null), document.querySelector('#main'));
+            return false;
+        }
         ReactDOM.render(React.createElement(Controls, null), document.querySelector('#header'));
         ReactDOM.render(React.createElement(LinkedAccounts, { csrf: csrf }), document.querySelector('#children'));
         ReactDOM.render(React.createElement(DomoListDay, { csrf: csrf, domos: [] }), document.querySelector('#main'));
@@ -296,7 +352,7 @@ var setup = function setup(csrf) {
         account = result.data;
         week = account.currentWeek - 1;
         showViews(csrf);
-        if (account.type === 'Parent') {
+        if (account.type === 'Parent' && account.subscription) {
             loadDomosFromServer(csrf);
         }
     });
@@ -313,13 +369,30 @@ $(document).ready(function () {
 });
 "use strict";
 
+var hideCount = 0;
 var handleError = function handleError(message) {
+    var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
     $("#errorMessage").text(message);
-    $("#domoMessage").animate({ width: 'toggle' }, 350);
+    $("#domoMessage").animate({ height: 'toggle' }, 350);
+
+    var errorMessage = document.querySelector('#errorMessage');
+    errorMessage.style.color = change ? '#1cc425' : 'red';
+
+    hideCount++;
+    setTimeout(hideError, 5000);
+};
+
+var hideError = function hideError() {
+    hideCount--;
+    if (hideCount !== 0) {
+        return;
+    }
+    $("#domoMessage").animate({ height: 'hide' }, 350);
 };
 
 var redirect = function redirect(response) {
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#domoMessage").animate({ height: 'hide' }, 350);
     window.location = response.redirect;
 };
 
@@ -336,4 +409,40 @@ var sendAjax = function sendAjax(type, action, data, success) {
             handleError(messageObj.error);
         }
     });
+};
+
+var Ad = function Ad(props) {
+    return React.createElement(
+        "div",
+        { className: "adView" },
+        React.createElement(
+            "h1",
+            null,
+            "AD HERE"
+        ),
+        React.createElement(
+            "h1",
+            null,
+            "AD HERE"
+        ),
+        React.createElement(
+            "h1",
+            null,
+            "AD HERE"
+        )
+    );
+};
+
+var AdView = function AdView(props) {
+    return React.createElement(
+        "div",
+        { className: "adContainer" },
+        React.createElement(Ad, null),
+        React.createElement(Ad, null)
+    );
+};
+
+var ShowAds = function ShowAds() {
+    console.log("showing ads?");
+    ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
 };

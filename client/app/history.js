@@ -79,7 +79,7 @@ const DomoListDay = function(props){
     let domos = sortDomosByDay(props.domos);
 
     return (
-        <div>
+        <div className="dayContainer">
             <div className="day">
                 <h1>Monday</h1>
                 <DomoList domos={domos.monday} csrf={props.csrf} />
@@ -188,20 +188,51 @@ const Controls = (props) => {
         <div className="historyControls">
             <input type="submit" onClick={(e) => handleWeekChange(e, -1)} value="Previous Week" 
             id={(week > 1) ? null : "dontShow"}/>
-            <h1>Current Week: {week}</h1>
+            <h1>Week: {week}</h1>
             <input type="submit" onClick={(e) => handleWeekChange(e, 1)} value="Next Week"
              id={(week < account.currentWeek - 1) ? null : "dontShow"}/>
         </div>
     );  
 };
 
+const ChildShow = (props) => {
+    return(
+        <div className="baseView">
+            <h1>This view is only available for your parent</h1>
+        </div>
+    );
+};
+
+const SubscribeView = (props) => {
+    return(
+        <div className="historySubView">
+            <h1>History is only available for subscribers</h1>
+            <h3>A subscription is only $10 a year!</h3>
+            <p>What do I get?</p>
+            <p>+ Access to history</p>
+            <p>+ No ads</p>
+            <a id="setLinkPass" href="/account">Go Subscribe!</a>
+        </div>
+    );
+};
+
 const showViews = (csrf, data = []) => {
     if (account.type === 'Child')
     {
-
+        ReactDOM.render(
+            <ChildShow />, document.querySelector('#main')
+        );
     }
     else
     {
+        console.log(account);
+        if (account.subscription === false)
+        {
+            ReactDOM.render(
+                <SubscribeView />, document.querySelector('#main')                
+            );
+            return false;
+        }
         ReactDOM.render(
             <Controls />,document.querySelector('#header')
         );
@@ -220,7 +251,7 @@ const setup = (csrf) => {
         account = result.data;
         week = account.currentWeek-1;
         showViews(csrf);
-        if (account.type === 'Parent')
+        if (account.type === 'Parent' && account.subscription)
         {
             loadDomosFromServer(csrf);
         }

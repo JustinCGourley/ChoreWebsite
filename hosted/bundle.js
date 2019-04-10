@@ -5,7 +5,7 @@ var curDomos = [];
 var handleDomo = function handleDomo(e) {
     e.preventDefault();
 
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#domoMessage").animate({ height: 'hide' }, 350);
 
     if ($("#domoName").val() == '' || $("#domoAge").val() == '' || $('#domoDesc').val() == '') {
         handleError("All * fields are required");
@@ -55,7 +55,7 @@ var handleAccountLink = function handleAccountLink(e, account) {
 
     e.preventDefault();
 
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#domoMessage").animate({ height: 'hide' }, 350);
 
     if ($('#linkName').val() == '' || $('#linkPass').val() == '') {
         handleError("Fill out everything to link!");
@@ -84,7 +84,7 @@ var handleNextWeek = function handleNextWeek(e) {
             console.log("ERROR");
             handleError(err.error);
         }
-
+        handleError("Finished Week", true);
         sendAjax('GET', '/getCurrentAccount', null, function (result) {
             account = result.data;
             loadDomosFromServer();
@@ -467,12 +467,13 @@ var LinkView = function LinkView(props) {
             React.createElement(
                 "label",
                 { htmlFor: "linkPass" },
-                "Link Password"
+                "Link Password: "
             ),
             React.createElement("input", { id: "linkPass", type: "text", name: "pass", placeholder: "Link Password" }),
             React.createElement("br", null),
             React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf }),
-            React.createElement("input", { className: "linkUserSubmit", type: "submit", value: "Link Account" })
+            React.createElement("input", { className: "linkPassSubmit makeDomoSubmit", id: "noLinkSubmit",
+                type: "submit", value: "Link Account" })
         )
     );
 };
@@ -513,6 +514,9 @@ var loadDomosFromServer = function loadDomosFromServer() {
 var setup = function setup(csrf) {
     sendAjax('GET', '/getCurrentAccount', null, function (result) {
         account = result.data;
+        if (account.subscription === false) {
+            ShowAds();
+        }
         setupViews(csrf);
     });
 };
@@ -544,13 +548,30 @@ $(document).ready(function () {
 });
 "use strict";
 
+var hideCount = 0;
 var handleError = function handleError(message) {
+    var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
     $("#errorMessage").text(message);
-    $("#domoMessage").animate({ width: 'toggle' }, 350);
+    $("#domoMessage").animate({ height: 'toggle' }, 350);
+
+    var errorMessage = document.querySelector('#errorMessage');
+    errorMessage.style.color = change ? '#1cc425' : 'red';
+
+    hideCount++;
+    setTimeout(hideError, 5000);
+};
+
+var hideError = function hideError() {
+    hideCount--;
+    if (hideCount !== 0) {
+        return;
+    }
+    $("#domoMessage").animate({ height: 'hide' }, 350);
 };
 
 var redirect = function redirect(response) {
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#domoMessage").animate({ height: 'hide' }, 350);
     window.location = response.redirect;
 };
 
@@ -567,4 +588,40 @@ var sendAjax = function sendAjax(type, action, data, success) {
             handleError(messageObj.error);
         }
     });
+};
+
+var Ad = function Ad(props) {
+    return React.createElement(
+        "div",
+        { className: "adView" },
+        React.createElement(
+            "h1",
+            null,
+            "AD HERE"
+        ),
+        React.createElement(
+            "h1",
+            null,
+            "AD HERE"
+        ),
+        React.createElement(
+            "h1",
+            null,
+            "AD HERE"
+        )
+    );
+};
+
+var AdView = function AdView(props) {
+    return React.createElement(
+        "div",
+        { className: "adContainer" },
+        React.createElement(Ad, null),
+        React.createElement(Ad, null)
+    );
+};
+
+var ShowAds = function ShowAds() {
+    console.log("showing ads?");
+    ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
 };

@@ -3,7 +3,7 @@
 var handleLogin = function handleLogin(e) {
     e.preventDefault();
 
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#domoMessage").animate({ height: 'hide' }, 350);
     if ($("#user").val() == '' || $("#pass").val() == '') {
         handleError("username or password is wrong!");
         return false;
@@ -16,7 +16,7 @@ var handleLogin = function handleLogin(e) {
 var handleSignup = function handleSignup(e) {
     e.preventDefault();
 
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#domoMessage").animate({ height: 'hide' }, 350);
     if ($("#user").val() == '' || $("#pass").val() == '' || $("#pass2").val() == '') {
         handleError("All fields are required.");
         return false;
@@ -146,13 +146,30 @@ $(document).ready(function () {
 });
 "use strict";
 
+var hideCount = 0;
 var handleError = function handleError(message) {
+    var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
     $("#errorMessage").text(message);
-    $("#domoMessage").animate({ width: 'toggle' }, 350);
+    $("#domoMessage").animate({ height: 'toggle' }, 350);
+
+    var errorMessage = document.querySelector('#errorMessage');
+    errorMessage.style.color = change ? '#1cc425' : 'red';
+
+    hideCount++;
+    setTimeout(hideError, 5000);
+};
+
+var hideError = function hideError() {
+    hideCount--;
+    if (hideCount !== 0) {
+        return;
+    }
+    $("#domoMessage").animate({ height: 'hide' }, 350);
 };
 
 var redirect = function redirect(response) {
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#domoMessage").animate({ height: 'hide' }, 350);
     window.location = response.redirect;
 };
 
@@ -169,4 +186,40 @@ var sendAjax = function sendAjax(type, action, data, success) {
             handleError(messageObj.error);
         }
     });
+};
+
+var Ad = function Ad(props) {
+    return React.createElement(
+        "div",
+        { className: "adView" },
+        React.createElement(
+            "h1",
+            null,
+            "AD HERE"
+        ),
+        React.createElement(
+            "h1",
+            null,
+            "AD HERE"
+        ),
+        React.createElement(
+            "h1",
+            null,
+            "AD HERE"
+        )
+    );
+};
+
+var AdView = function AdView(props) {
+    return React.createElement(
+        "div",
+        { className: "adContainer" },
+        React.createElement(Ad, null),
+        React.createElement(Ad, null)
+    );
+};
+
+var ShowAds = function ShowAds() {
+    console.log("showing ads?");
+    ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
 };

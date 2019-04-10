@@ -4,9 +4,21 @@ html, body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    /* background-color: black;
-    color: white; */
-    background-color: rgb(218, 218, 240);
+}
+
+html{
+    /* Based on https://stackoverflow.com/questions/37965625/create-a-background-pattern-in-css */
+    background: repeating-linear-gradient( 
+        -45deg,
+        rgb(0, 0, 0) 4px, 
+        rgb(51, 51, 51) 6px, 
+        rgb(51, 51, 51) 8px,
+        rgb(29, 29, 29) 14px);
+}
+
+#topSpace
+{
+    margin: 75px;
 }
 
 #logo {
@@ -15,12 +27,14 @@ html, body {
     padding-top: 5px;
     float:left;
     border-radius: 8px;
+    margin-left: 5px;
 }
 
 nav {
     width: 100%;
     height: 50px;
-    background-color: #55acee;
+    background-color: #717475;
+    position: fixed;
 }
 
 nav:nth-child(1) {
@@ -30,33 +44,33 @@ nav:nth-child(1) {
 .navlink {
     padding: 5px;
     padding-top: 12px;
-    padding-left: 20px;
+    padding-right: 30px;
     color: white;
     font-size: 1.3em;
-    float: left;
+    float: right;
 }
 
 .navlink a, .navlink a:link, .navlink a:visited, .navlink a:hover, .navlink a:active {
     color: white;
     text-decoration: none;
     padding: 5px;
-    border-radius: 4px;
-    background-color: #55acee;
+    background-color: #117511;
     transition: background-color 0.4s ease;
+    border: 2px solid black;
 }
 
 .navlink a:hover {
     transition: background-color 0.8s ease;
-    background-color: #66bdff;
+    background-color: #1cc425;
 }
 
 .domoForm {
-    border: 2px solid #338acc;
+    border: 2px solid black;
     width: 50%;
     margin-top:0px;
     padding:10px;
-    background-color: #55acee;
-    border-radius: 20px;
+    background-color: #717475;
+    border-radius: 5px;
     margin-top: 20px;
     margin-left: 9%;
 }
@@ -85,7 +99,7 @@ nav:nth-child(1) {
     transition: background-color 0.4s ease;
     width: 100%;
     height: 30px;
-    background-color: #55acee;
+    background-color: #117511;
     border-radius: 2px;
     color: white;
     text-decoration: none;
@@ -100,15 +114,21 @@ nav:nth-child(1) {
 
 .makeDomoSubmit:hover {
     transition: background-color 0.4s ease;
-    background-color: #338acc;
+    background-color: #1cc425;
+}
+
+#type{
+    width: 140px;
 }
 
 .mainForm {
-    height: 300px;
-    width: 350px;
-    margin: 0 auto;
-    padding-top: 350px;
+    padding: 20px;
+    width: 300px;
+    margin: auto;
+    margin-top: 200px;
     font-size: 1.2em;
+    background-color: #717475;
+    border: 2px solid black;
 }
 
 .mainForm h3 {
@@ -131,9 +151,9 @@ nav:nth-child(1) {
     margin-top: 14px;
     font-size: 1.2em;
     width: 100px;
-    background-color: #55acee;
+    background-color: #117511;
     border-radius: 2px;
-    border-color: #66acee;
+    border-color: black;
     padding: 3px 0px;
     color: white;
     text-decoration: none;
@@ -145,7 +165,7 @@ nav:nth-child(1) {
 
 .formSubmit:hover {
     transition: background-color 0.4s ease;
-    background-color: #338acc;
+    background-color: #1cc425;
 }
 
 #user, #pass, #pass2 {
@@ -157,18 +177,21 @@ nav:nth-child(1) {
 
 #user:focus, #pass:focus, #pass2:focus {
     outline: none;
-    box-shadow: 0px 0px 1px 1px #55acee;
+    box-shadow: 0px 0px 1px 1px #717475;
 }
 
 #domoMessage {
     display:none;
-    top: 250px;
+    top: 100px;
+    right: 100px;
     width: 250px;
-    height: 650px;
+    height: 100px;
     position: absolute;
     z-index: 200;
-    right: 0px;
     overflow: hidden;
+    background-color: #717475;
+    border: 2px solid black;
+    box-shadow: 10px 10px #363838;
 }
 
 #domoMessage h3 {
@@ -187,7 +210,8 @@ nav:nth-child(1) {
 #errorMessage {
     font-size: 1.2em;
     font-weight: bold;
-    color: red;
+    color: rgb(192, 24, 24);
+    text-shadow: 1px 1px black;
     font-style: italic;
 }
 
@@ -205,11 +229,12 @@ nav:nth-child(1) {
 #domos {
     width: 50%;
     min-width: 400px;
-    border: 2px solid #55acee;
+    border: 2px solid #a8abac;
     border-radius: 4px;
     margin-left: 10%;
     margin-bottom: 100px;
     margin-top: 20px;
+    background-color: #717475;
 }
 
 .domo {
@@ -217,9 +242,9 @@ nav:nth-child(1) {
     margin: 0 auto;
     margin-top: 2px;
     margin-bottom: 2px;
-    border: 2px solid #55acee;
+    border: 2px solid #717475;
     border-radius: 4px;
-    background-color: #55acee;
+    background-color: #aaaeaf;
     padding: 10px;
     min-height:60px;
     overflow: hidden;
@@ -228,8 +253,8 @@ nav:nth-child(1) {
 .domo:hover {
     transition: border-color 0.2s ease-out;
     border-color: rgba(255,255,255, 0.8);
-    transition: background-color 2.6s ease-out;
-    background-color: #66bfff;
+    transition: background-color 0.5s ease-out;
+    background-color: #d0d3d1;
 }
 
 .domoEdit{
@@ -299,8 +324,12 @@ h3.domoCost{
     padding-right: 20px;
 }
 
+.dayContainer{
+    border: 1px solid black;
+}
+
 .day{
-    background-color: white;
+    background-color: #717475;
     padding-top: 20px;
     padding-bottom: 20px;
 }
@@ -350,7 +379,7 @@ h3.domoCost{
     border-radius: 20px;
     padding: 20px;
     margin-top: 20px;
-    background-color: #55acee;
+    background-color: #717475;
 }
 
 .child{
@@ -373,15 +402,27 @@ h3.domoCost{
     margin-left: 5%;
 }
 
+.inputBox{
+    text-align: center;
+    font-size: 1.1em;
+    border-radius: 6px;
+}
+
+.linkPassSubmit{
+    border-radius: 0px;
+    margin: 0px;
+    width: 180px;
+}
+
 #setLinkPass{
-    color: red;
+    color: rgb(177, 0, 0);
     text-decoration: underline;
     font-size: 1.5em;
 }
 
 #setLinkPass:hover
 {
-    color: rgb(143, 34, 34);
+    color: rgb(94, 23, 23);
 }
 
 #main{
@@ -393,10 +434,17 @@ h3.domoCost{
 .earningsHistory{
     width: 50%;
     margin: auto;
+    background-color: #717475;
+    padding: 10px;
+    margin-top: 10px;
+    border: 2px solid black;
+    border-radius: 10px;
 }
 
 .historyControls{
+    margin-top: 10px;
     width: 50%;
+    text-align: center;
     margin: auto;
     background-color: grey;
     border: 2px solid darkgrey;
@@ -410,7 +458,7 @@ h3.domoCost{
     width: 20%;
     height: 5%;
     transition: background-color 0.4s ease;
-    background-color: #55acee;
+    background-color: #117511;
     border-radius: 2px;
     color: white;
     text-decoration: none;
@@ -420,7 +468,7 @@ h3.domoCost{
 
 .historyControls input:hover{
     transition: background-color 0.4s ease;
-    background-color: #338acc;
+    background-color: #1cc425;
 }
 
 .historyControls h1{
@@ -430,4 +478,85 @@ h3.domoCost{
 
 #dontShow{
     visibility: hidden;
+}
+
+.changePass input{
+    display: block;
+}
+
+.accountSubview{
+    background-color: grey;
+    width: 50%;
+    padding: 20px;
+    margin: 20px;
+    border: 2px solid black;
+}
+
+.subscribeActive{
+    display: inline-block;
+    margin-left: 10px;
+}
+
+#header{
+    margin-top: 10px;
+}
+
+.historySubView{
+    background-color: #717475;
+    padding: 20px;
+    border: 2px solid black;
+}
+
+.adContainer{
+    position: fixed;
+    top: 10%;
+    right: 5%;
+    width: 20%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.adView{
+    background-color: grey;
+    width: 80%;
+    height: 40%;
+    padding: 5px;
+    border: 2px solid black;
+    margin: auto;
+    margin-bottom: 20px;
+}
+
+.adView h1{
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.noLinkView{
+    width: 50%;
+    background-color: #717475;
+    margin-left: 10%;
+    margin-top: 20px;
+    padding: 20px;
+    border: 2px solid black;
+}
+
+.noLinkView label{
+    display: inline-block;
+    width: 30%;
+    text-align: right;
+    margin-right: 20px;
+    margin-top: 5px;
+}
+
+#noLinkSubmit{
+    margin-left: 20%;
+    margin-top: 20px;
+}
+
+.baseView{
+    background-color: #717475;
+    padding: 20px;
+    border: 2px solid black;
+    text-align: center;
 }

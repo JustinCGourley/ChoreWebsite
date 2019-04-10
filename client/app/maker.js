@@ -4,7 +4,7 @@ let curDomos = [];
 const handleDomo = (e) => {
     e.preventDefault();
 
-    $("#domoMessage").animate({width: 'hide'},350);
+    $("#domoMessage").animate({height: 'hide'},350);
 
     if ($("#domoName").val() == '' || $("#domoAge").val() == '' || $('#domoDesc').val() == ''){
         handleError("All * fields are required");
@@ -57,7 +57,7 @@ const handleAccountLink = (e, account) => {
     
     e.preventDefault();
 
-    $("#domoMessage").animate({width: 'hide'}, 350);
+    $("#domoMessage").animate({height: 'hide'}, 350);
 
     if ($('#linkName').val() == '' || $('#linkPass').val() == ''){
         handleError("Fill out everything to link!");
@@ -90,7 +90,7 @@ const handleNextWeek = (e) => {
             console.log("ERROR");
             handleError(err.error);
         }
-
+        handleError("Finished Week", true);
         sendAjax('GET', '/getCurrentAccount', null, (result) => {
             account = result.data;
             loadDomosFromServer();
@@ -330,11 +330,12 @@ const LinkView = function(props) {
             <label htmlFor="user">Parents Username: </label>
             <input id="linkName" type="text" name="name" placeholder="Parents Username"/>
             <br/>
-            <label htmlFor="linkPass">Link Password</label>
+            <label htmlFor="linkPass">Link Password: </label>
             <input id="linkPass" type="text" name="pass" placeholder="Link Password"/>
             <br/>
             <input id="csrfToken" type="hidden" name="_csrf" value={props.csrf} />
-            <input className="linkUserSubmit" type="submit" value="Link Account"/>
+            <input className="linkPassSubmit makeDomoSubmit" id="noLinkSubmit"
+            type="submit" value="Link Account"/>
             </form>
         </div>
     );
@@ -384,6 +385,10 @@ const loadDomosFromServer = () => {
 const setup = function(csrf) {
     sendAjax('GET', '/getCurrentAccount', null, (result) => {
         account = result.data;
+        if (account.subscription === false)
+        {
+            ShowAds();
+        }
         setupViews(csrf);
     });
 };

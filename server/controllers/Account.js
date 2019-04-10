@@ -88,6 +88,27 @@ const signup = (request, responce) => {
   });
 };
 
+const changePass = (request, response) => {
+  const req = request;
+  const res = response;
+
+  return Account.AccountModel.generateHash(req.body.pass, (salt, hash) => {
+    const query = {_id: req.session.account._id};
+    const change = {salt: salt, password: hash};
+    return Account.AccountModel.findOneAndUpdate(query, change, {new: true}, (err, data) =>
+    {
+      if (err)
+      {
+        console.log("unable to find account");
+        return res.status(400).json({error: err});
+      }
+
+      req.session.account = data;
+      return res.json({status: true});
+    });
+  });
+};
+
 const setLinkPass = (request, response) => {
   const req = request;
   const res = response;
@@ -121,8 +142,22 @@ const getCurrentAccount = (request, response) => {
 
     if (accountData.type === 'Child') {
       accountData.link = data.link;
+      if (data.link === 'none')
+      {
+        return res.json({data: accountData});
+      }
+      let query = {_id: data.link};
+      return Account.AccountModel.findOne(query, (err, parentAccount) => {
+        if (err)
+        {
+          return res.status(400).json({error: "Something went wrong"});
+        }
+
+        accountData.subscription = parentAccount.subscription;
+        return res.json({data: accountData});
+      });
     } else {
-      accountData.linkSet = (data.linkPass === 'none');
+      accountData.linkSet = (data.linkPass !== 'none');
     }
 
     res.json({ data: accountData });
@@ -175,6 +210,23 @@ const getAllLinked = (request, response) => {
   });
 };
 
+const subscribe = (request, response) => {
+  const req = request;
+  const res = response;
+
+  const query = {_id: req.session.account._id};
+  const data = {subscription: true};
+
+  Account.AccountModel.findOneAndUpdate(query, data, {new: true}, function(err, data){
+    if (err)
+    {
+      console.log(err);
+      return res.status(400).json({error: err, status: false});
+    }
+    return res.json({data: data, status: true});
+  });
+};
+
 const getToken = (request, response) => {
   const req = request;
   const res = response;
@@ -196,3 +248,5 @@ module.exports.linkAccount = linkAccount;
 module.exports.accountPage = accountPage;
 module.exports.setLinkPass = setLinkPass;
 module.exports.getLinked = getAllLinked;
+module.exports.changePass = changePass;
+module.exports.subscribe = subscribe;
