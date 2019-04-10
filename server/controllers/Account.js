@@ -93,18 +93,16 @@ const changePass = (request, response) => {
   const res = response;
 
   return Account.AccountModel.generateHash(req.body.pass, (salt, hash) => {
-    const query = {_id: req.session.account._id};
-    const change = {salt: salt, password: hash};
-    return Account.AccountModel.findOneAndUpdate(query, change, {new: true}, (err, data) =>
-    {
-      if (err)
-      {
-        console.log("unable to find account");
-        return res.status(400).json({error: err});
+    const query = { _id: req.session.account._id };
+    const change = { salt, password: hash };
+    return Account.AccountModel.findOneAndUpdate(query, change, { new: true }, (err, data) => {
+      if (err) {
+        console.log('unable to find account');
+        return res.status(400).json({ error: err });
       }
 
       req.session.account = data;
-      return res.json({status: true});
+      return res.json({ status: true });
     });
   });
 };
@@ -142,23 +140,23 @@ const getCurrentAccount = (request, response) => {
 
     if (accountData.type === 'Child') {
       accountData.link = data.link;
-      if (data.link === 'none')
-      {
-        return res.json({data: accountData});
+
+      if (data.link === 'none') {
+        res.json({ data: accountData });
       }
-      let query = {_id: data.link};
-      return Account.AccountModel.findOne(query, (err, parentAccount) => {
-        if (err)
-        {
-          return res.status(400).json({error: "Something went wrong"});
+
+      const query = { _id: data.link };
+      Account.AccountModel.findOne(query, (errG, parentAccount) => {
+        if (errG) {
+          return res.status(400).json({ error: 'Something went wrong' });
         }
 
         accountData.subscription = parentAccount.subscription;
-        return res.json({data: accountData});
+        return res.json({ data: accountData });
       });
-    } else {
-      accountData.linkSet = (data.linkPass !== 'none');
     }
+    accountData.linkSet = (data.linkPass !== 'none');
+
 
     res.json({ data: accountData });
   });
@@ -214,16 +212,15 @@ const subscribe = (request, response) => {
   const req = request;
   const res = response;
 
-  const query = {_id: req.session.account._id};
-  const data = {subscription: true};
+  const query = { _id: req.session.account._id };
+  const dataG = { subscription: true };
 
-  Account.AccountModel.findOneAndUpdate(query, data, {new: true}, function(err, data){
-    if (err)
-    {
+  Account.AccountModel.findOneAndUpdate(query, dataG, { new: true }, (err, data) => {
+    if (err) {
       console.log(err);
-      return res.status(400).json({error: err, status: false});
+      return res.status(400).json({ error: err, status: false });
     }
-    return res.json({data: data, status: true});
+    return res.json({ data, status: true });
   });
 };
 
