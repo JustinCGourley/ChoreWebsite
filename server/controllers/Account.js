@@ -143,6 +143,7 @@ const getCurrentAccount = (request, response) => {
 
       if (data.link === 'none') {
         res.json({ data: accountData });
+        return;
       }
 
       const query = { _id: data.link };
@@ -154,11 +155,11 @@ const getCurrentAccount = (request, response) => {
         accountData.subscription = parentAccount.subscription;
         return res.json({ data: accountData });
       });
+    } else {
+      accountData.linkSet = (data.linkPass !== 'none');
+
+      res.json({ data: accountData });
     }
-    accountData.linkSet = (data.linkPass !== 'none');
-
-
-    res.json({ data: accountData });
   });
 };
 
