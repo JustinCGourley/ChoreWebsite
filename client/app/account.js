@@ -59,6 +59,7 @@ const handleLinkPass = (e) => {
         document.querySelector('#linkPass').value = "";
         if (data.status)
         {
+            console.log("test");
             handleError("Password link set!", true)
         }
     });
@@ -125,7 +126,8 @@ const LinkPass = function(props)
         >
             <label htmlFor="linkPass">Set Account Link Password: </label>
             <br/>
-            <input className="inputBox linkPassSubmit" type="text" name="linkPass" placeholder="Link Password"/>
+            <input className="inputBox linkPassSubmit" id="linkPass" 
+            type="text" name="linkPass" placeholder="Link Password"/>
             <br/>
             <input type="hidden" name="_csrf" value={props.csrf} />
             <input className="linkPassSubmit makeDomoSubmit" type="submit" value="Set Link Password"/>

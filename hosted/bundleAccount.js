@@ -74,6 +74,7 @@ var handleLinkPass = function handleLinkPass(e) {
     sendAjax('POST', $("#linkPassForm").attr("action"), $("#linkPassForm").serialize(), function (data) {
         document.querySelector('#linkPass').value = "";
         if (data.status) {
+            console.log("test");
             handleError("Password link set!", true);
         }
     });
@@ -134,7 +135,8 @@ var LinkPass = function LinkPass(props) {
             "Set Account Link Password: "
         ),
         React.createElement("br", null),
-        React.createElement("input", { className: "inputBox linkPassSubmit", type: "text", name: "linkPass", placeholder: "Link Password" }),
+        React.createElement("input", { className: "inputBox linkPassSubmit", id: "linkPass",
+            type: "text", name: "linkPass", placeholder: "Link Password" }),
         React.createElement("br", null),
         React.createElement("input", { type: "hidden", name: "_csrf", value: props.csrf }),
         React.createElement("input", { className: "linkPassSubmit makeDomoSubmit", type: "submit", value: "Set Link Password" })
