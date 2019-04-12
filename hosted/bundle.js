@@ -268,7 +268,7 @@ var CompletedCheck = function CompletedCheck(props) {
             props.completed !== 'false' ? "Completed by: " + props.completed : "Not Completed"
         ),
         React.createElement("input", { type: "submit", onClick: props.onClick,
-            className: "completedSubmit", value: props.completed === 'false' ? "Finish Chore" : "Undo" })
+            className: "completedSubmit makeDomoSubmit", value: props.completed === 'false' ? "Finish Chore" : "Undo" })
     );
 };
 

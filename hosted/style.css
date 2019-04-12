@@ -559,12 +559,11 @@ h3.domoCost{
     margin-left: 10%;
     height: 30px;
     background-color: #117511;
-    border-radius: 2px;
     color: white;
     text-decoration: none;
     position: relative;
     margin-top: 20px;
-    border-radius: 00px 0px 10px 10px;
+    border-radius: 0px 10px 0px 10px;
 }
 
 .makeDomoSubmit:link, .makeDomoSubmit:visited, .makeDomoSubmit:hover, .makeDomoSubmit:active {
@@ -592,4 +591,8 @@ h3.domoCost{
 #setLinkPass:hover
 {
     color: rgb(94, 23, 23);
+}
+
+.completedSubmit{
+    width: 50%;
 }

@@ -202,7 +202,7 @@ const CompletedCheck = (props) => {
             {(props.completed !== 'false') ? `Completed by: ${props.completed}` : "Not Completed"}
             </h3>
             <input type="submit" onClick={props.onClick} 
-            className="completedSubmit" value={(props.completed === 'false') ? "Finish Chore" : "Undo"}/>
+            className="completedSubmit makeDomoSubmit" value={(props.completed === 'false') ? "Finish Chore" : "Undo"}/>
         </div>
     );
 };
