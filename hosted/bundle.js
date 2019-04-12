@@ -27,6 +27,7 @@ var handleDelete = function handleDelete(e, domo) {
             console.log(err);
             handleError("Unable to delete domo");
         }
+        handleError("Deleted Chore", true);
         loadDomosFromServer();
     });
 
@@ -230,11 +231,11 @@ var ChoreInfo = function ChoreInfo(props) {
         account.linkSet ? null : React.createElement(
             "a",
             { id: "setLinkPass", href: "/account" },
-            "Please set your link password on your account page!"
+            "Please set your link password!"
         ),
         React.createElement(
             "h1",
-            null,
+            { id: "weekHeader" },
             "Week ",
             account.currentWeek
         ),
@@ -251,7 +252,7 @@ var ChoreInfo = function ChoreInfo(props) {
 var DomoMake = function DomoMake(props) {
     return React.createElement(
         "div",
-        null,
+        { className: account.subscription ? "mainViewSubbed" : "mainView" },
         React.createElement(ChoreInfo, { csrf: props.csrf, data: props.data }),
         React.createElement(DomoForm, { csrf: props.csrf })
     );
@@ -351,7 +352,7 @@ var DomoListDay = function DomoListDay(props) {
     if (props.domos.length === 0) {
         return React.createElement(
             "div",
-            { className: "domoList" },
+            { className: account.subscription ? "domoList mainViewSubbed" : "domoList mainView" },
             React.createElement(
                 "h3",
                 { className: "emptyDomo" },
@@ -365,7 +366,7 @@ var DomoListDay = function DomoListDay(props) {
 
     return React.createElement(
         "div",
-        null,
+        { className: account.subscription ? "domoList mainViewSubbed" : "domoList mainView" },
         React.createElement(
             "div",
             { className: "day" },

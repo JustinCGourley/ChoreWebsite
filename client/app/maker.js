@@ -27,6 +27,7 @@ const handleDelete = (e, domo) => {
             console.log(err);
             handleError("Unable to delete domo");
         }
+        handleError("Deleted Chore", true);
         loadDomosFromServer();
     });
 
@@ -176,8 +177,8 @@ const ChildInfo = (props) => {
 const ChoreInfo = (props) => {
     return(
         <div className="ChoreInfo">
-            {(account.linkSet) ? null : <a id="setLinkPass" href="/account">Please set your link password on your account page!</a>}
-            <h1>Week {account.currentWeek}</h1>
+            {(account.linkSet) ? null : <a id="setLinkPass" href="/account">Please set your link password!</a>}
+            <h1 id="weekHeader">Week {account.currentWeek}</h1>
             <h2>Linked Accounts:</h2>
             <ChildInfo csrf={props.csrf} data={props.data}/>
             <input type="submit" onClick={handleNextWeek} className="makeDomoSubmit" value="Finish Week"/>
@@ -187,7 +188,7 @@ const ChoreInfo = (props) => {
 
 const DomoMake = (props) => {
     return (
-        <div>
+        <div className={account.subscription ? "mainViewSubbed" : "mainView"}>
             <ChoreInfo csrf={props.csrf} data={props.data}/>
             <DomoForm csrf={props.csrf} />
         </div>
@@ -272,7 +273,7 @@ const DomoListDay = function(props){
 
     if (props.domos.length === 0) {
         return (
-            <div className="domoList">
+            <div className={(account.subscription) ? "domoList mainViewSubbed" : "domoList mainView"}>
                 <h3 className="emptyDomo">No Chores Added</h3>
                 <input id="csrfToken" type="hidden" name="_csrf" value={props.csrf} />
             </div>
@@ -282,7 +283,7 @@ const DomoListDay = function(props){
     let domos = sortDomosByDay(props.domos);
 
     return (
-        <div>
+        <div className={(account.subscription) ? "domoList mainViewSubbed" : "domoList mainView"}>
             <div className="day">
                 <h1>Monday</h1>
                 <DomoList domos={domos.monday} csrf={props.csrf} />

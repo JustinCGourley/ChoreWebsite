@@ -33,7 +33,15 @@ html{
 nav {
     width: 100%;
     height: 50px;
-    background-color: #717475;
+    background: repeating-linear-gradient(
+    0deg,
+    black 0px,
+    black 1px,
+    rgb(51, 51, 51) 2px, 
+    rgb(29, 29, 29) 2px,
+    grey 50px
+    );
+    z-index: 10;
     position: fixed;
 }
 
@@ -66,13 +74,16 @@ nav:nth-child(1) {
 
 .domoForm {
     border: 2px solid black;
-    width: 50%;
-    margin-top:0px;
-    padding:10px;
+    width: 100%;
+    margin: auto;
     background-color: #717475;
     border-radius: 5px;
     margin-top: 20px;
-    margin-left: 9%;
+    padding-top: 10px;
+}
+
+.domoForm *{
+    margin: 5px;
 }
 
 .domoForm label {
@@ -93,28 +104,6 @@ nav:nth-child(1) {
 #domoDay{
     margin-left: 20px;
     width: 50%;
-}
-
-.makeDomoSubmit {
-    transition: background-color 0.4s ease;
-    width: 100%;
-    height: 30px;
-    background-color: #117511;
-    border-radius: 2px;
-    color: white;
-    text-decoration: none;
-    position: relative;
-    margin-top: 20px;
-    border-radius: 00px 0px 10px 10px;
-}
-
-.makeDomoSubmit:link, .makeDomoSubmit:visited, .makeDomoSubmit:hover, .makeDomoSubmit:active {
-    color: white;
-}
-
-.makeDomoSubmit:hover {
-    transition: background-color 0.4s ease;
-    background-color: #1cc425;
 }
 
 #type{
@@ -226,15 +215,15 @@ nav:nth-child(1) {
     transform: rotate(330deg);
 }
 
-#domos {
-    width: 50%;
-    min-width: 400px;
+.domoList{
     border: 2px solid #a8abac;
     border-radius: 4px;
-    margin-left: 10%;
-    margin-bottom: 100px;
-    margin-top: 20px;
     background-color: #717475;
+}
+
+#domos{
+    margin-top: 20px;
+    margin-bottom: 100px;
 }
 
 .domo {
@@ -348,12 +337,18 @@ h3.domoCost{
     padding: 20px;
 }
 
+#weekHeader{
+    font-size: 40px;
+}
+
 .domoNotCompleted{
     color: red;
+    text-shadow: 1px 1px black;
 }
 
 .domoIsCompleted{
     color: green;
+    text-shadow: 1px 1px black;
 }
 
 .domo:first-child {
@@ -368,27 +363,37 @@ h3.domoCost{
     width: 140px;
 }
 
-.accountView{
+.mainView{
+    width: 50%;
     margin-left: 10%;
 }
 
-.ChoreInfo{
-    margin-left: 8%;
+.mainViewSubbed{
     width: 50%;
+    margin: auto;
+}
+
+.ChoreInfo *{
+    margin: 20px;
+}
+
+.ChoreInfo{
+    margin: auto;
+    width: 100%;
     border: 2px solid black;
     border-radius: 20px;
-    padding: 20px;
     margin-top: 20px;
     background-color: #717475;
 }
+
 
 .child{
     margin-left: 5%;
     background-color: darkgrey;
     width: 50%;
     padding: 10px;
-    border-radius: 20px;
-    border: 2px solid grey;
+    border-radius: 5px;
+    border: 2px solid black;
     margin-top: 10px;
 }
 
@@ -408,22 +413,7 @@ h3.domoCost{
     border-radius: 6px;
 }
 
-.linkPassSubmit{
-    border-radius: 0px;
-    margin: 0px;
-    width: 180px;
-}
 
-#setLinkPass{
-    color: rgb(177, 0, 0);
-    text-decoration: underline;
-    font-size: 1.5em;
-}
-
-#setLinkPass:hover
-{
-    color: rgb(94, 23, 23);
-}
 
 #main{
     width: 50%;
@@ -486,7 +476,7 @@ h3.domoCost{
 
 .accountSubview{
     background-color: grey;
-    width: 50%;
+    width: 80%;
     padding: 20px;
     margin: 20px;
     border: 2px solid black;
@@ -533,12 +523,14 @@ h3.domoCost{
 }
 
 .noLinkView{
-    width: 50%;
+    width: 100%;
     background-color: #717475;
-    margin-left: 10%;
     margin-top: 20px;
-    padding: 20px;
     border: 2px solid black;
+}
+
+.noLinkView *{
+    padding: 5px;
 }
 
 .noLinkView label{
@@ -559,4 +551,45 @@ h3.domoCost{
     padding: 20px;
     border: 2px solid black;
     text-align: center;
+}
+
+.makeDomoSubmit {
+    transition: background-color 0.4s ease;
+    width: 80%;
+    margin-left: 10%;
+    height: 30px;
+    background-color: #117511;
+    border-radius: 2px;
+    color: white;
+    text-decoration: none;
+    position: relative;
+    margin-top: 20px;
+    border-radius: 00px 0px 10px 10px;
+}
+
+.makeDomoSubmit:link, .makeDomoSubmit:visited, .makeDomoSubmit:hover, .makeDomoSubmit:active {
+    color: white;
+}
+
+.makeDomoSubmit:hover {
+    transition: background-color 0.4s ease;
+    background-color: #1cc425;
+}
+
+.linkPassSubmit{
+    border-radius: 0px;
+    margin: 0px;
+    width: 180px;
+}
+
+#setLinkPass{
+    color: rgb(196, 14, 14);
+    text-shadow: 1px 1px black;
+    text-decoration: underline;
+    font-size: 1.5em;
+}
+
+#setLinkPass:hover
+{
+    color: rgb(94, 23, 23);
 }

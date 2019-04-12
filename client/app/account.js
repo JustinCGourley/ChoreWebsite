@@ -196,7 +196,10 @@ const SubscribeView = (props) =>{
 
 const FormView = function(props){
     return(
-        <div className="accountView">
+        <div className={account.subscription ? "mainViewSubbed" : "mainView"}>
+            <div className="accountSubscribe accountSubview">
+                <SubscribeView csrf={props.csrf}/>
+            </div>
             <div className="accountHeader accountSubview">
                 <h1>User: {account.user}</h1>
                 <br/>
@@ -209,9 +212,6 @@ const FormView = function(props){
                 <LinkedAccounts data={props.data} csrf={props.csrf}/>}
                 <br/>
                 {account.type === 'Parent' ? <LinkPass csrf={props.csrf} /> : null}
-            </div>
-            <div className="accountSubscribe accountSubview">
-                <SubscribeView csrf={props.csrf}/>
             </div>
         </div>
     );

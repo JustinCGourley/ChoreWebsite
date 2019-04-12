@@ -250,7 +250,12 @@ var SubscribeView = function SubscribeView(props) {
 var FormView = function FormView(props) {
     return React.createElement(
         "div",
-        { className: "accountView" },
+        { className: account.subscription ? "mainViewSubbed" : "mainView" },
+        React.createElement(
+            "div",
+            { className: "accountSubscribe accountSubview" },
+            React.createElement(SubscribeView, { csrf: props.csrf })
+        ),
         React.createElement(
             "div",
             { className: "accountHeader accountSubview" },
@@ -281,11 +286,6 @@ var FormView = function FormView(props) {
             ) : React.createElement(LinkedAccounts, { data: props.data, csrf: props.csrf }),
             React.createElement("br", null),
             account.type === 'Parent' ? React.createElement(LinkPass, { csrf: props.csrf }) : null
-        ),
-        React.createElement(
-            "div",
-            { className: "accountSubscribe accountSubview" },
-            React.createElement(SubscribeView, { csrf: props.csrf })
         )
     );
 };
