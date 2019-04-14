@@ -1,3 +1,4 @@
+//handles login button press
 const handleLogin = (e) => {
     e.preventDefault();
 
@@ -7,11 +8,11 @@ const handleLogin = (e) => {
         handleError("username or password is wrong!");
         return false;
     }
-
+    //sends post to server to login
     sendAjax('POST', $('#loginForm').attr("action"), $('#loginForm').serialize(), redirect);
     return false;
 }
-
+//handles signup button press
 const handleSignup = (e) => {
     e.preventDefault();
 
@@ -28,10 +29,12 @@ const handleSignup = (e) => {
         return false;
     }
 
+    //sends post to server to sign up
     sendAjax('POST', $('#signupForm').attr("action"), $('#signupForm').serialize(), redirect);
     return false;
 }
 
+//view for login window
 const LoginWindow = (props) => {
     return (
         <form id = "loginForm" name="loginForm"
@@ -50,6 +53,7 @@ const LoginWindow = (props) => {
     );
 }
 
+//view for signup window
 const SignupWindow = (props) => {
     return (
         <form id = "signupForm" name="signupForm"
@@ -75,6 +79,7 @@ const SignupWindow = (props) => {
     );
 }
 
+//renders login window
 const createLoginWindow = (csrf) => {
     ReactDOM.render(
       <LoginWindow csrf={csrf} />,
@@ -82,6 +87,7 @@ const createLoginWindow = (csrf) => {
     );
 };
 
+//renders signup window
 const createSignupWindow = (csrf) => {
     ReactDOM.render(
         <SignupWindow csrf={csrf} />,
@@ -89,6 +95,7 @@ const createSignupWindow = (csrf) => {
     );
 };
 
+//sets up login/signup screens
 const setup = (csrf) => {
     const loginButton = document.querySelector('#loginButton');
     const signupButton = document.querySelector('#signupButton');

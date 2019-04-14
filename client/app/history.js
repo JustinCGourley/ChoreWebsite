@@ -1,7 +1,7 @@
 let account = {};
 let curDomos = [];
 let week = 0;
-
+//completed view on chore view
 const CompletedCheck = (props) => {
     return(
         <div className = "domoCompleted">
@@ -11,7 +11,7 @@ const CompletedCheck = (props) => {
         </div>
     );
 };
-
+//view for a single chore
 const DomoList = function(props) {
 
     const domoNodes = props.domos.map(function(domo) {
@@ -32,7 +32,7 @@ const DomoList = function(props) {
         </div>
     );
 };
-
+//sorts chores into days
 const sortDomosByDay = (domos) => {
     const sortedList = {monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []};
     for (let i = 0; i < domos.length; i++)
@@ -65,7 +65,7 @@ const sortDomosByDay = (domos) => {
 
     return sortedList;
 }
-
+//displays chores by day
 const DomoListDay = function(props){
     if (props.domos.length === 0) {
         return (
@@ -111,7 +111,7 @@ const DomoListDay = function(props){
         </div>
     );
 };
-
+//loads chores from server
 const loadDomosFromServer = (csrf) => {
 
     let dataSend = `link=${account.link}&type=${account.type}&week=${week}&_csrf=${csrf}`;
@@ -125,7 +125,7 @@ const loadDomosFromServer = (csrf) => {
         );
     });
 };
-
+//shows linked accounts for currently selected week
 const LinkedAccounts = (csrf) => {
     let accounts = {};
 
@@ -174,7 +174,7 @@ const LinkedAccounts = (csrf) => {
         </div>
     );
 }
-
+//handle button presses
 const handleWeekChange = (e, change) => {
     week += change;
     let token = document.querySelector('#csrfToken').value;
@@ -182,7 +182,7 @@ const handleWeekChange = (e, change) => {
     loadDomosFromServer(token);
 
 };
-
+//shows controls view
 const Controls = (props) => {
     return(
         <div className="historyControls">
@@ -194,15 +194,15 @@ const Controls = (props) => {
         </div>
     );  
 };
-
+//view for child accounts
 const ChildShow = (props) => {
     return(
         <div className="baseView">
-            <h1>This view is only available for your parent</h1>
+            <h1>This screen is only available for your parent</h1>
         </div>
     );
 };
-
+//shows subscribe view for non-subscribers
 const SubscribeView = (props) => {
     return(
         <div className="historySubView">
@@ -215,7 +215,7 @@ const SubscribeView = (props) => {
         </div>
     );
 };
-
+//shows views based on account type
 const showViews = (csrf, data = []) => {
     if (account.type === 'Child')
     {
@@ -225,7 +225,6 @@ const showViews = (csrf, data = []) => {
     }
     else
     {
-        console.log(account);
         if (account.subscription === false)
         {
             ReactDOM.render(
@@ -244,7 +243,7 @@ const showViews = (csrf, data = []) => {
         );
     }
 };
-
+//grabs account and sets week and views up
 const setup = (csrf) => {
 
     sendAjax('GET', 'getCurrentAccount', null, (result) => {

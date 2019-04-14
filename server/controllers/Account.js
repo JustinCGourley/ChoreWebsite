@@ -2,19 +2,21 @@ const models = require('../models');
 
 const Account = models.Account;
 
+// renders the login page
 const loginPage = (req, res) => {
   res.render('login', { csrfToken: req.csrfToken() });
 };
-
+// renders the account page
 const accountPage = (req, res) => {
   res.render('appAccount', { csrfToken: req.csrfToken() });
 };
-
+// logs out current user
 const logout = (req, res) => {
   req.session.destroy();
   res.redirect('/');
 };
 
+// logs in current user
 const login = (request, responce) => {
   const req = request;
   const res = responce;
@@ -26,16 +28,18 @@ const login = (request, responce) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
+  // makes sure user and pass are correct
   return Account.AccountModel.authenticate(username, password, (err, account) => {
     if (err || !account) {
       return res.status(401).json({ error: 'Wrong username or password' });
     }
     req.session.account = Account.AccountModel.toAPI(account);
-
+    // information pass -> send user to main screen
     return res.json({ redirect: '/maker' });
   });
 };
 
+// signs up user based on given info
 const signup = (request, responce) => {
   const req = request;
   const res = responce;
@@ -53,6 +57,7 @@ const signup = (request, responce) => {
     return res.status(400).json({ error: 'Passwords do not match' });
   }
 
+  // setup an account and save to the database
   return Account.AccountModel.generateHash(req.body.pass, (salt, hash) => {
     const accountData = {
       username: req.body.username,
@@ -88,6 +93,7 @@ const signup = (request, responce) => {
   });
 };
 
+// changes users password
 const changePass = (request, response) => {
   const req = request;
   const res = response;
@@ -107,6 +113,7 @@ const changePass = (request, response) => {
   });
 };
 
+// sets the users link password (only available for parent accounts)
 const setLinkPass = (request, response) => {
   const req = request;
   const res = response;
@@ -121,6 +128,8 @@ const setLinkPass = (request, response) => {
   });
 };
 
+// returns the user who is currently logged in
+// (only returns username, type, week, and subscription status)
 const getCurrentAccount = (request, response) => {
   const req = request;
   const res = response;
@@ -138,6 +147,8 @@ const getCurrentAccount = (request, response) => {
       currentWeek: data.currentWeek,
     };
 
+    // return linked account if current account is a child
+    // will also return linked parent subscription status if account is type child
     if (accountData.type === 'Child') {
       accountData.link = data.link;
 
@@ -163,6 +174,7 @@ const getCurrentAccount = (request, response) => {
   });
 };
 
+// links a child account to a given parent account if one exists
 const linkAccount = (request, response) => {
   const req = request;
   const res = response;
@@ -193,6 +205,7 @@ const linkAccount = (request, response) => {
   });
 };
 
+// returns all linked children accounts based on users id
 const getAllLinked = (request, response) => {
   const req = request;
   const res = response;
@@ -209,6 +222,7 @@ const getAllLinked = (request, response) => {
   });
 };
 
+// sets subcription to active of current account
 const subscribe = (request, response) => {
   const req = request;
   const res = response;
@@ -225,6 +239,7 @@ const subscribe = (request, response) => {
   });
 };
 
+// returns the current users csrf token
 const getToken = (request, response) => {
   const req = request;
   const res = response;

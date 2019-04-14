@@ -1,7 +1,7 @@
 "use strict";
 
 var account = {};
-
+//shows linked accounts view
 var LinkedAccounts = function LinkedAccounts(props) {
     if (props.data.length === 0) {
         return React.createElement(
@@ -45,7 +45,7 @@ var LinkedAccounts = function LinkedAccounts(props) {
         React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf })
     );
 };
-
+//loading in linked accounts
 var loadLinkedAccounts = function loadLinkedAccounts() {
     var token = document.querySelector('#csrfToken').value;
 
@@ -60,7 +60,7 @@ var loadLinkedAccounts = function loadLinkedAccounts() {
         showViews(token, data.data);
     });
 };
-
+//handles changing link password
 var handleLinkPass = function handleLinkPass(e) {
     e.preventDefault();
 
@@ -81,7 +81,7 @@ var handleLinkPass = function handleLinkPass(e) {
 
     return false;
 };
-
+//handles changing password
 var handleChangePass = function handleChangePass(e) {
     e.preventDefault();
 
@@ -103,7 +103,7 @@ var handleChangePass = function handleChangePass(e) {
         }
     });
 };
-
+//handles subscribe button being pressed
 var handleSubscribe = function handleSubscribe(e, csrf) {
     e.preventDefault();
 
@@ -118,7 +118,7 @@ var handleSubscribe = function handleSubscribe(e, csrf) {
         }
     });
 };
-
+//link password form
 var LinkPass = function LinkPass(props) {
     return React.createElement(
         "form",
@@ -130,9 +130,9 @@ var LinkPass = function LinkPass(props) {
             className: "linkPassForm"
         },
         React.createElement(
-            "label",
+            "h3",
             { htmlFor: "linkPass" },
-            "Set Account Link Password: "
+            "Set Link Password: "
         ),
         React.createElement("br", null),
         React.createElement("input", { className: "inputBox linkPassSubmit", id: "linkPass",
@@ -142,7 +142,7 @@ var LinkPass = function LinkPass(props) {
         React.createElement("input", { className: "linkPassSubmit makeDomoSubmit", type: "submit", value: "Set Link Password" })
     );
 };
-
+//pass change form
 var ChangePass = function ChangePass(props) {
     return React.createElement(
         "form",
@@ -165,7 +165,7 @@ var ChangePass = function ChangePass(props) {
         React.createElement("input", { className: "linkPassSubmit makeDomoSubmit", type: "submit", value: "Change Password" })
     );
 };
-
+//subscribe view (changes based on if account is currently subscribed or not)
 var SubscribeView = function SubscribeView(props) {
 
     if (account.type === 'Child') {
@@ -246,7 +246,7 @@ var SubscribeView = function SubscribeView(props) {
             }, value: "Subscribe for $10" })
     );
 };
-
+//main screen view
 var FormView = function FormView(props) {
     return React.createElement(
         "div",
@@ -259,43 +259,45 @@ var FormView = function FormView(props) {
         React.createElement(
             "div",
             { className: "accountHeader accountSubview" },
+            React.createElement(ChangePass, { csrf: props.csrf }),
             React.createElement(
-                "h1",
-                null,
-                "User: ",
-                account.user
-            ),
-            React.createElement("br", null),
-            React.createElement(
-                "h3",
-                null,
-                "Account Type: ",
-                account.type
-            ),
-            React.createElement("br", null),
-            React.createElement(ChangePass, { csrf: props.csrf })
+                "div",
+                { id: "accountUserInfo" },
+                React.createElement(
+                    "h1",
+                    null,
+                    "User: ",
+                    account.user
+                ),
+                React.createElement(
+                    "h3",
+                    null,
+                    "Account Type: ",
+                    account.type
+                )
+            )
         ),
         React.createElement(
             "div",
             { className: "accountLinked accountSubview" },
+            account.type === 'Parent' ? React.createElement(LinkPass, { csrf: props.csrf }) : null,
             account.type === 'Child' ? React.createElement(
                 "h3",
                 null,
                 "Account linked to: ",
                 account.link
             ) : React.createElement(LinkedAccounts, { data: props.data, csrf: props.csrf }),
-            React.createElement("br", null),
-            account.type === 'Parent' ? React.createElement(LinkPass, { csrf: props.csrf }) : null
+            React.createElement("br", null)
         )
     );
 };
-
+//shows view
 var showViews = function showViews(csrf) {
     var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
     ReactDOM.render(React.createElement(FormView, { csrf: csrf, data: data }), document.querySelector('#account'));
 };
-
+//grabs account and sets up views (including ads)
 var setup = function setup(csrf) {
 
     sendAjax('GET', '/getCurrentAccount', null, function (result) {
@@ -306,6 +308,8 @@ var setup = function setup(csrf) {
         }
         if (account.subscription === false) {
             ShowAds();
+        } else {
+            document.querySelector('#ads').innerHTML = "";
         }
     });
 };
@@ -322,6 +326,7 @@ $(document).ready(function () {
 "use strict";
 
 var hideCount = 0;
+//shows error message
 var handleError = function handleError(message) {
     var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -335,6 +340,7 @@ var handleError = function handleError(message) {
     setTimeout(hideError, 5000);
 };
 
+//hides error window
 var hideError = function hideError() {
     hideCount--;
     if (hideCount !== 0) {
@@ -343,11 +349,13 @@ var hideError = function hideError() {
     $("#domoMessage").animate({ height: 'hide' }, 350);
 };
 
+//redirects window
 var redirect = function redirect(response) {
     $("#domoMessage").animate({ height: 'hide' }, 350);
     window.location = response.redirect;
 };
 
+//helper funcion to send ajax message
 var sendAjax = function sendAjax(type, action, data, success) {
     $.ajax({
         cache: false,
@@ -363,6 +371,7 @@ var sendAjax = function sendAjax(type, action, data, success) {
     });
 };
 
+//TEMPORARY - actual ad view would go here
 var Ad = function Ad(props) {
     return React.createElement(
         "div",
@@ -394,7 +403,7 @@ var AdView = function AdView(props) {
     );
 };
 
+//ran to show ads view
 var ShowAds = function ShowAds() {
-    console.log("showing ads?");
     ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
 };

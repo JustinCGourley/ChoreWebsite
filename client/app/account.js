@@ -1,5 +1,5 @@
 let account = {};
-
+//shows linked accounts view
 const LinkedAccounts = function(props)
 {
     if (props.data.length === 0)
@@ -28,7 +28,7 @@ const LinkedAccounts = function(props)
         </div>
     );
 };
-
+//loading in linked accounts
 const loadLinkedAccounts = () => {
     let token = document.querySelector('#csrfToken').value;
 
@@ -44,7 +44,7 @@ const loadLinkedAccounts = () => {
         showViews(token, data.data);
     });
 };
-
+//handles changing link password
 const handleLinkPass = (e) => {
     e.preventDefault();
 
@@ -66,7 +66,7 @@ const handleLinkPass = (e) => {
 
     return false;
 }
-
+//handles changing password
 const handleChangePass = (e) => {
     e.preventDefault();
 
@@ -95,7 +95,7 @@ const handleChangePass = (e) => {
     });
 
 };
-
+//handles subscribe button being pressed
 const handleSubscribe = (e, csrf) => {
     e.preventDefault();
 
@@ -113,7 +113,7 @@ const handleSubscribe = (e, csrf) => {
         }
     });
 };
-
+//link password form
 const LinkPass = function(props)
 {
     return(
@@ -124,7 +124,7 @@ const LinkPass = function(props)
         method="POST"
         className="linkPassForm"
         >
-            <label htmlFor="linkPass">Set Account Link Password: </label>
+            <h3 htmlFor="linkPass">Set Link Password: </h3>
             <br/>
             <input className="inputBox linkPassSubmit" id="linkPass" 
             type="text" name="linkPass" placeholder="Link Password"/>
@@ -134,7 +134,7 @@ const LinkPass = function(props)
         </form>
     );
 };
-
+//pass change form
 const ChangePass = function(props)
 {
     return(
@@ -154,7 +154,7 @@ const ChangePass = function(props)
         </form>
     );
 };
-
+//subscribe view (changes based on if account is currently subscribed or not)
 const SubscribeView = (props) =>{
 
     if (account.type === 'Child')
@@ -193,7 +193,7 @@ const SubscribeView = (props) =>{
         </div>
     );
 };
-
+//main screen view
 const FormView = function(props){
     return(
         <div className={account.subscription ? "mainViewSubbed" : "mainView"}>
@@ -201,28 +201,28 @@ const FormView = function(props){
                 <SubscribeView csrf={props.csrf}/>
             </div>
             <div className="accountHeader accountSubview">
-                <h1>User: {account.user}</h1>
-                <br/>
-                <h3>Account Type: {account.type}</h3>
-                <br/>            
                 <ChangePass csrf={props.csrf}/>
+                <div id="accountUserInfo">
+                    <h1>User: {account.user}</h1>
+                    <h3>Account Type: {account.type}</h3>
+                </div>
             </div>
-                <div className="accountLinked accountSubview">
+            <div className="accountLinked accountSubview">
+                {account.type === 'Parent' ? <LinkPass csrf={props.csrf} /> : null}
                 {account.type === 'Child' ? <h3>Account linked to: {account.link}</h3> :
                 <LinkedAccounts data={props.data} csrf={props.csrf}/>}
                 <br/>
-                {account.type === 'Parent' ? <LinkPass csrf={props.csrf} /> : null}
             </div>
         </div>
     );
 };
-
+//shows view
 const showViews = (csrf, data = []) => {
     ReactDOM.render(
         <FormView csrf={csrf} data={data}/>, document.querySelector('#account')
     );
 };
-
+//grabs account and sets up views (including ads)
 const setup = (csrf) => {
 
     sendAjax('GET', '/getCurrentAccount', null, (result) => {
@@ -235,6 +235,10 @@ const setup = (csrf) => {
         if (account.subscription === false)
         {
             ShowAds();
+        }
+        else
+        {
+            document.querySelector('#ads').innerHTML = "";
         }
     });
 };

@@ -3,7 +3,7 @@
 var account = {};
 var curDomos = [];
 var week = 0;
-
+//completed view on chore view
 var CompletedCheck = function CompletedCheck(props) {
     return React.createElement(
         "div",
@@ -15,7 +15,7 @@ var CompletedCheck = function CompletedCheck(props) {
         )
     );
 };
-
+//view for a single chore
 var DomoList = function DomoList(props) {
 
     var domoNodes = props.domos.map(function (domo) {
@@ -49,7 +49,7 @@ var DomoList = function DomoList(props) {
         React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf })
     );
 };
-
+//sorts chores into days
 var sortDomosByDay = function sortDomosByDay(domos) {
     var sortedList = { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] };
     for (var i = 0; i < domos.length; i++) {
@@ -80,7 +80,7 @@ var sortDomosByDay = function sortDomosByDay(domos) {
 
     return sortedList;
 };
-
+//displays chores by day
 var DomoListDay = function DomoListDay(props) {
     if (props.domos.length === 0) {
         return React.createElement(
@@ -172,7 +172,7 @@ var DomoListDay = function DomoListDay(props) {
         )
     );
 };
-
+//loads chores from server
 var loadDomosFromServer = function loadDomosFromServer(csrf) {
 
     var dataSend = "link=" + account.link + "&type=" + account.type + "&week=" + week + "&_csrf=" + csrf;
@@ -182,7 +182,7 @@ var loadDomosFromServer = function loadDomosFromServer(csrf) {
         ReactDOM.render(React.createElement(LinkedAccounts, { csrf: csrf }), document.querySelector('#children'));
     });
 };
-
+//shows linked accounts for currently selected week
 var LinkedAccounts = function LinkedAccounts(csrf) {
     var accounts = {};
 
@@ -251,14 +251,14 @@ var LinkedAccounts = function LinkedAccounts(csrf) {
         nodes
     );
 };
-
+//handle button presses
 var handleWeekChange = function handleWeekChange(e, change) {
     week += change;
     var token = document.querySelector('#csrfToken').value;
     showViews(token);
     loadDomosFromServer(token);
 };
-
+//shows controls view
 var Controls = function Controls(props) {
     return React.createElement(
         "div",
@@ -279,7 +279,7 @@ var Controls = function Controls(props) {
             id: week < account.currentWeek - 1 ? null : "dontShow" })
     );
 };
-
+//view for child accounts
 var ChildShow = function ChildShow(props) {
     return React.createElement(
         "div",
@@ -287,11 +287,11 @@ var ChildShow = function ChildShow(props) {
         React.createElement(
             "h1",
             null,
-            "This view is only available for your parent"
+            "This screen is only available for your parent"
         )
     );
 };
-
+//shows subscribe view for non-subscribers
 var SubscribeView = function SubscribeView(props) {
     return React.createElement(
         "div",
@@ -328,14 +328,13 @@ var SubscribeView = function SubscribeView(props) {
         )
     );
 };
-
+//shows views based on account type
 var showViews = function showViews(csrf) {
     var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
     if (account.type === 'Child') {
         ReactDOM.render(React.createElement(ChildShow, null), document.querySelector('#main'));
     } else {
-        console.log(account);
         if (account.subscription === false) {
             ReactDOM.render(React.createElement(SubscribeView, null), document.querySelector('#main'));
             return false;
@@ -345,7 +344,7 @@ var showViews = function showViews(csrf) {
         ReactDOM.render(React.createElement(DomoListDay, { csrf: csrf, domos: [] }), document.querySelector('#main'));
     }
 };
-
+//grabs account and sets week and views up
 var setup = function setup(csrf) {
 
     sendAjax('GET', 'getCurrentAccount', null, function (result) {
@@ -370,6 +369,7 @@ $(document).ready(function () {
 "use strict";
 
 var hideCount = 0;
+//shows error message
 var handleError = function handleError(message) {
     var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -383,6 +383,7 @@ var handleError = function handleError(message) {
     setTimeout(hideError, 5000);
 };
 
+//hides error window
 var hideError = function hideError() {
     hideCount--;
     if (hideCount !== 0) {
@@ -391,11 +392,13 @@ var hideError = function hideError() {
     $("#domoMessage").animate({ height: 'hide' }, 350);
 };
 
+//redirects window
 var redirect = function redirect(response) {
     $("#domoMessage").animate({ height: 'hide' }, 350);
     window.location = response.redirect;
 };
 
+//helper funcion to send ajax message
 var sendAjax = function sendAjax(type, action, data, success) {
     $.ajax({
         cache: false,
@@ -411,6 +414,7 @@ var sendAjax = function sendAjax(type, action, data, success) {
     });
 };
 
+//TEMPORARY - actual ad view would go here
 var Ad = function Ad(props) {
     return React.createElement(
         "div",
@@ -442,7 +446,7 @@ var AdView = function AdView(props) {
     );
 };
 
+//ran to show ads view
 var ShowAds = function ShowAds() {
-    console.log("showing ads?");
     ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
 };

@@ -2,6 +2,7 @@
 
 var account = {};
 var curDomos = [];
+//handles creating a new chore
 var handleDomo = function handleDomo(e) {
     e.preventDefault();
 
@@ -17,7 +18,7 @@ var handleDomo = function handleDomo(e) {
     });
     return false;
 };
-
+//handles deleting a chore
 var handleDelete = function handleDelete(e, domo) {
     var token = document.querySelector('#csrfToken').value;
     var data = "id=" + domo._id + "&_csrf=" + token;
@@ -33,7 +34,7 @@ var handleDelete = function handleDelete(e, domo) {
 
     return false;
 };
-
+//handles pressing complete chore button
 var handleCheckClick = function handleCheckClick(e, domo) {
 
     var token = document.querySelector('#csrfToken').value;
@@ -51,7 +52,7 @@ var handleCheckClick = function handleCheckClick(e, domo) {
         loadDomosFromServer();
     });
 };
-
+//handles linking account - for child accounts
 var handleAccountLink = function handleAccountLink(e, account) {
 
     e.preventDefault();
@@ -73,7 +74,7 @@ var handleAccountLink = function handleAccountLink(e, account) {
 
     return false;
 };
-
+//handles next week button being pressed
 var handleNextWeek = function handleNextWeek(e) {
     e.preventDefault();
 
@@ -92,7 +93,7 @@ var handleNextWeek = function handleNextWeek(e) {
         });
     });
 };
-
+//display for chore creation window
 var DomoForm = function DomoForm(props) {
     return React.createElement(
         "form",
@@ -173,7 +174,7 @@ var DomoForm = function DomoForm(props) {
         React.createElement("input", { className: "makeDomoSubmit", type: "submit", value: "Make Chore" })
     );
 };
-
+//gets how much a child has currently earned
 var getAmountForChild = function getAmountForChild(name) {
     var amount = 0.0;
     for (var i = 0; i < curDomos.length; i++) {
@@ -183,7 +184,7 @@ var getAmountForChild = function getAmountForChild(name) {
     }
     return amount;
 };
-
+//shows linked accounts
 var ChildInfo = function ChildInfo(props) {
     if (props.data.length <= 0) {
         return React.createElement(
@@ -223,7 +224,7 @@ var ChildInfo = function ChildInfo(props) {
         React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf })
     );
 };
-
+//Shows info on week, and linked accounts
 var ChoreInfo = function ChoreInfo(props) {
     return React.createElement(
         "div",
@@ -248,7 +249,7 @@ var ChoreInfo = function ChoreInfo(props) {
         React.createElement("input", { type: "submit", onClick: handleNextWeek, className: "makeDomoSubmit", value: "Finish Week" })
     );
 };
-
+//view setup for creating chores and linked info
 var DomoMake = function DomoMake(props) {
     return React.createElement(
         "div",
@@ -257,7 +258,7 @@ var DomoMake = function DomoMake(props) {
         React.createElement(DomoForm, { csrf: props.csrf })
     );
 };
-
+//shows completion status on each chore
 var CompletedCheck = function CompletedCheck(props) {
     return React.createElement(
         "div",
@@ -271,14 +272,14 @@ var CompletedCheck = function CompletedCheck(props) {
             className: "completedSubmit makeDomoSubmit", value: props.completed === 'false' ? "Finish Chore" : "Undo" })
     );
 };
-
+//view for delete button on each chore
 var DeleteOption = function DeleteOption(props) {
     return React.createElement("img", { src: "/assets/img/trashcan.png", alt: "trash",
         className: "domoDelete", onClick: function onClick(e) {
             return handleDelete(e, props.info);
         }, name: "test" });
 };
-
+//view for a single chore
 var DomoList = function DomoList(props) {
 
     var domoNodes = props.domos.map(function (domo) {
@@ -315,7 +316,7 @@ var DomoList = function DomoList(props) {
         React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf })
     );
 };
-
+//sorts out chores based on day
 var sortDomosByDay = function sortDomosByDay(domos) {
     var sortedList = { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] };
     for (var i = 0; i < domos.length; i++) {
@@ -346,7 +347,7 @@ var sortDomosByDay = function sortDomosByDay(domos) {
 
     return sortedList;
 };
-
+//displays each chore based on day
 var DomoListDay = function DomoListDay(props) {
 
     if (props.domos.length === 0) {
@@ -439,7 +440,7 @@ var DomoListDay = function DomoListDay(props) {
         )
     );
 };
-
+//view for child requesting them to link their account
 var LinkView = function LinkView(props) {
     return React.createElement(
         "div",
@@ -478,7 +479,7 @@ var LinkView = function LinkView(props) {
         )
     );
 };
-
+//load linked accounts if account is parent type and render them
 var loadLinkedAccounts = function loadLinkedAccounts() {
     var token = document.querySelector('#csrfToken').value;
 
@@ -492,7 +493,7 @@ var loadLinkedAccounts = function loadLinkedAccounts() {
         ReactDOM.render(React.createElement(DomoMake, { csrf: token, data: data.data }), document.querySelector('#makeDomo'));
     });
 };
-
+//load all chores from the server and render them into the view
 var loadDomosFromServer = function loadDomosFromServer() {
 
     var token = document.querySelector('#csrfToken').value;
@@ -511,17 +512,20 @@ var loadDomosFromServer = function loadDomosFromServer() {
         }
     });
 };
-
+//grab account and start setting up views
 var setup = function setup(csrf) {
     sendAjax('GET', '/getCurrentAccount', null, function (result) {
         account = result.data;
         if (account.subscription === false) {
             ShowAds();
+        } else {
+            document.querySelector('#ads').innerHTML = "";
         }
         setupViews(csrf);
     });
 };
 
+//sets up all views based on account and account type
 var setupViews = function setupViews(csrf) {
     if (account.type === "Child" && account.link === 'none') {
         ReactDOM.render(React.createElement(LinkView, { csrf: csrf }), document.querySelector('#makeDomo'));
@@ -550,6 +554,7 @@ $(document).ready(function () {
 "use strict";
 
 var hideCount = 0;
+//shows error message
 var handleError = function handleError(message) {
     var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -563,6 +568,7 @@ var handleError = function handleError(message) {
     setTimeout(hideError, 5000);
 };
 
+//hides error window
 var hideError = function hideError() {
     hideCount--;
     if (hideCount !== 0) {
@@ -571,11 +577,13 @@ var hideError = function hideError() {
     $("#domoMessage").animate({ height: 'hide' }, 350);
 };
 
+//redirects window
 var redirect = function redirect(response) {
     $("#domoMessage").animate({ height: 'hide' }, 350);
     window.location = response.redirect;
 };
 
+//helper funcion to send ajax message
 var sendAjax = function sendAjax(type, action, data, success) {
     $.ajax({
         cache: false,
@@ -591,6 +599,7 @@ var sendAjax = function sendAjax(type, action, data, success) {
     });
 };
 
+//TEMPORARY - actual ad view would go here
 var Ad = function Ad(props) {
     return React.createElement(
         "div",
@@ -622,7 +631,7 @@ var AdView = function AdView(props) {
     );
 };
 
+//ran to show ads view
 var ShowAds = function ShowAds() {
-    console.log("showing ads?");
     ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
 };

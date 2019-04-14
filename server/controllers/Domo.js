@@ -2,6 +2,7 @@ const models = require('../models');
 
 const Domo = models.Domo;
 
+// returns the main page (logged in)
 const makerPage = (req, res) => {
   Domo.DomoModel.findByOwner(req.session.account._id, (err, docs) => {
     if (err) {
@@ -12,6 +13,7 @@ const makerPage = (req, res) => {
   });
 };
 
+// returns the history page
 const historyPage = (req, res) => {
   Domo.DomoModel.findByOwner(req.session.account._id, (err, docs) => {
     if (err) {
@@ -22,11 +24,13 @@ const historyPage = (req, res) => {
   });
 };
 
+// create a chore based on input
 const makeDomo = (req, res) => {
   if (!req.body.title || !req.body.cost || !req.body.day) {
-    return res.status(400).json({ error: 'All fields are required.' });
+    return res.status(400).json({ error: 'All *  fields are required.' });
   }
 
+  // setup data based on input and current account
   const domoData = {
     title: req.body.title,
     cost: req.body.cost,
@@ -54,6 +58,7 @@ const makeDomo = (req, res) => {
   return domoPromise;
 };
 
+// updates a chore to be completed
 const updateCompleted = (request, response) => {
   const req = request;
   const res = response;
@@ -70,6 +75,7 @@ const updateCompleted = (request, response) => {
   });
 };
 
+// sorts through each chore and gives back only chores of a given week
 const sortDomosByWeek = (res, domos, week) => {
   const domosForWeek = [];
   for (let i = 0; i < domos.length; i++) {
@@ -80,6 +86,7 @@ const sortDomosByWeek = (res, domos, week) => {
   return res.json({ domos: domosForWeek });
 };
 
+// returns chore list
 const getDomos = (request, response) => {
   const req = request;
   const res = response;
@@ -89,7 +96,7 @@ const getDomos = (request, response) => {
   if (req.body.type === 'Child') {
     accountGrab = req.body.link;
   }
-
+  // grab chores from parent if account is child type
   return Domo.DomoModel.findByOwner(accountGrab, (err, docs) => {
     if (err) {
       console.log(err);
@@ -113,6 +120,9 @@ const getDomos = (request, response) => {
   });
 };
 
+// sets up new week when a week is finished
+// duplicates exisiting chores for current week,
+// incremenets week and sets all duplicates to new week
 const setupNewWeek = (request, response) => {
   const req = request;
   const res = response;
@@ -159,6 +169,8 @@ const setupNewWeek = (request, response) => {
   });
 };
 
+
+// deletes a given chore
 const deleteDomo = (request, response) => {
   const req = request;
   const res = response;

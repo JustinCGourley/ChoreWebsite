@@ -1,6 +1,7 @@
 
 let account = {};
 let curDomos = [];
+//handles creating a new chore
 const handleDomo = (e) => {
     e.preventDefault();
 
@@ -16,7 +17,7 @@ const handleDomo = (e) => {
     });
     return false;
 };
-
+//handles deleting a chore
 const handleDelete = (e, domo) => {
     let token = document.querySelector('#csrfToken').value;
     let data = `id=${domo._id}&_csrf=${token}`;
@@ -33,7 +34,7 @@ const handleDelete = (e, domo) => {
 
     return false;
 };
-
+//handles pressing complete chore button
 const handleCheckClick = (e, domo) => {
 
     let token = document.querySelector('#csrfToken').value;
@@ -53,7 +54,7 @@ const handleCheckClick = (e, domo) => {
         loadDomosFromServer();
     });
 };
-
+//handles linking account - for child accounts
 const handleAccountLink = (e, account) => {
     
     e.preventDefault();
@@ -78,7 +79,7 @@ const handleAccountLink = (e, account) => {
 
     return false;
 };
-
+//handles next week button being pressed
 const handleNextWeek = (e) => {
     e.preventDefault();
 
@@ -98,7 +99,7 @@ const handleNextWeek = (e) => {
         });
     });
 };
-
+//display for chore creation window
 const DomoForm = (props) => {
     return (
         <form id="domoForm"
@@ -134,7 +135,7 @@ const DomoForm = (props) => {
         </form>
     );
 };
-
+//gets how much a child has currently earned
 const getAmountForChild = (name) => {
     let amount = 0.0;
     for (let i = 0; i < curDomos.length; i++)
@@ -146,7 +147,7 @@ const getAmountForChild = (name) => {
     }
     return amount;
 };
-
+//shows linked accounts
 const ChildInfo = (props) => {
     if (props.data.length <= 0)
     {
@@ -173,7 +174,7 @@ const ChildInfo = (props) => {
         </div>
     );
 };
-
+//Shows info on week, and linked accounts
 const ChoreInfo = (props) => {
     return(
         <div className="ChoreInfo">
@@ -185,7 +186,7 @@ const ChoreInfo = (props) => {
         </div>
     );
 };
-
+//view setup for creating chores and linked info
 const DomoMake = (props) => {
     return (
         <div className={account.subscription ? "mainViewSubbed" : "mainView"}>
@@ -194,7 +195,7 @@ const DomoMake = (props) => {
         </div>
     );
 };
-
+//shows completion status on each chore
 const CompletedCheck = (props) => {
     return(
         <div className = "domoCompleted">
@@ -206,14 +207,14 @@ const CompletedCheck = (props) => {
         </div>
     );
 };
-
+//view for delete button on each chore
 const DeleteOption = (props) => {
     return (
         <img src="/assets/img/trashcan.png" alt="trash" 
         className="domoDelete" onClick={(e) => handleDelete(e,props.info)} name="test"/>
     );
 };
-
+//view for a single chore
 const DomoList = function(props) {
     
     const domoNodes = props.domos.map(function(domo) {
@@ -235,7 +236,7 @@ const DomoList = function(props) {
         </div>
     );
 };
-
+//sorts out chores based on day
 const sortDomosByDay = (domos) => {
     const sortedList = {monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []};
     for (let i = 0; i < domos.length; i++)
@@ -268,7 +269,7 @@ const sortDomosByDay = (domos) => {
 
     return sortedList;
 }
-
+//displays each chore based on day
 const DomoListDay = function(props){
 
     if (props.domos.length === 0) {
@@ -315,7 +316,7 @@ const DomoListDay = function(props){
         </div>
     );
 };
-
+//view for child requesting them to link their account
 const LinkView = function(props) {
     return (
         <div className="noLinkView">
@@ -341,7 +342,7 @@ const LinkView = function(props) {
         </div>
     );
 }
-
+//load linked accounts if account is parent type and render them
 const loadLinkedAccounts = () => {
     let token = document.querySelector('#csrfToken').value;
 
@@ -359,7 +360,7 @@ const loadLinkedAccounts = () => {
 
     });
 };
-
+//load all chores from the server and render them into the view
 const loadDomosFromServer = () => {
 
     let token = document.querySelector('#csrfToken').value;
@@ -382,7 +383,7 @@ const loadDomosFromServer = () => {
         }
     });
 };
-
+//grab account and start setting up views
 const setup = function(csrf) {
     sendAjax('GET', '/getCurrentAccount', null, (result) => {
         account = result.data;
@@ -390,10 +391,15 @@ const setup = function(csrf) {
         {
             ShowAds();
         }
+        else
+        {
+            document.querySelector('#ads').innerHTML = "";
+        }
         setupViews(csrf);
     });
 };
 
+//sets up all views based on account and account type
 const setupViews = function(csrf)
 {
     if (account.type === "Child" && account.link === 'none')

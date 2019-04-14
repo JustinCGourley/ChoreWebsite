@@ -1,5 +1,6 @@
 "use strict";
 
+//handles login button press
 var handleLogin = function handleLogin(e) {
     e.preventDefault();
 
@@ -8,11 +9,11 @@ var handleLogin = function handleLogin(e) {
         handleError("username or password is wrong!");
         return false;
     }
-
+    //sends post to server to login
     sendAjax('POST', $('#loginForm').attr("action"), $('#loginForm').serialize(), redirect);
     return false;
 };
-
+//handles signup button press
 var handleSignup = function handleSignup(e) {
     e.preventDefault();
 
@@ -27,10 +28,12 @@ var handleSignup = function handleSignup(e) {
         return false;
     }
 
+    //sends post to server to sign up
     sendAjax('POST', $('#signupForm').attr("action"), $('#signupForm').serialize(), redirect);
     return false;
 };
 
+//view for login window
 var LoginWindow = function LoginWindow(props) {
     return React.createElement(
         "form",
@@ -57,6 +60,7 @@ var LoginWindow = function LoginWindow(props) {
     );
 };
 
+//view for signup window
 var SignupWindow = function SignupWindow(props) {
     return React.createElement(
         "form",
@@ -108,14 +112,17 @@ var SignupWindow = function SignupWindow(props) {
     );
 };
 
+//renders login window
 var createLoginWindow = function createLoginWindow(csrf) {
     ReactDOM.render(React.createElement(LoginWindow, { csrf: csrf }), document.querySelector("#content"));
 };
 
+//renders signup window
 var createSignupWindow = function createSignupWindow(csrf) {
     ReactDOM.render(React.createElement(SignupWindow, { csrf: csrf }), document.querySelector("#content"));
 };
 
+//sets up login/signup screens
 var setup = function setup(csrf) {
     var loginButton = document.querySelector('#loginButton');
     var signupButton = document.querySelector('#signupButton');
@@ -147,6 +154,7 @@ $(document).ready(function () {
 "use strict";
 
 var hideCount = 0;
+//shows error message
 var handleError = function handleError(message) {
     var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -160,6 +168,7 @@ var handleError = function handleError(message) {
     setTimeout(hideError, 5000);
 };
 
+//hides error window
 var hideError = function hideError() {
     hideCount--;
     if (hideCount !== 0) {
@@ -168,11 +177,13 @@ var hideError = function hideError() {
     $("#domoMessage").animate({ height: 'hide' }, 350);
 };
 
+//redirects window
 var redirect = function redirect(response) {
     $("#domoMessage").animate({ height: 'hide' }, 350);
     window.location = response.redirect;
 };
 
+//helper funcion to send ajax message
 var sendAjax = function sendAjax(type, action, data, success) {
     $.ajax({
         cache: false,
@@ -188,6 +199,7 @@ var sendAjax = function sendAjax(type, action, data, success) {
     });
 };
 
+//TEMPORARY - actual ad view would go here
 var Ad = function Ad(props) {
     return React.createElement(
         "div",
@@ -219,7 +231,7 @@ var AdView = function AdView(props) {
     );
 };
 
+//ran to show ads view
 var ShowAds = function ShowAds() {
-    console.log("showing ads?");
     ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
 };

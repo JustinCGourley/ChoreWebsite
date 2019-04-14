@@ -523,7 +523,8 @@ h3.domoCost{
 }
 
 .noLinkView{
-    width: 100%;
+    width: 50%;
+    margin-left: 10%;
     background-color: #717475;
     margin-top: 20px;
     border: 2px solid black;
@@ -594,5 +595,19 @@ h3.domoCost{
 }
 
 .completedSubmit{
-    width: 50%;
+    width: 40%;
+    float: right;
+    margin: 0px;
+}
+
+input:focus{
+    outline: none;
+}
+
+#changePass, #linkPassForm{
+    float: right;
+}
+
+#accountUserInfo{
+    margin-bottom: 50px;
 }

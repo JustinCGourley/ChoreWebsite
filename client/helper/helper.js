@@ -1,4 +1,5 @@
 let hideCount = 0;
+//shows error message
 const handleError = (message, change = false) =>
 {
     $("#errorMessage").text(message);
@@ -11,6 +12,7 @@ const handleError = (message, change = false) =>
     setTimeout(hideError, 5000);
 }; 
 
+//hides error window
 const hideError = () => {
     hideCount--;
     if (hideCount !== 0)
@@ -20,11 +22,13 @@ const hideError = () => {
     $("#domoMessage").animate({height: 'hide'}, 350);
 };
 
+//redirects window
 const redirect = (response) => {
     $("#domoMessage").animate({height: 'hide'}, 350);
     window.location = response.redirect;
 }
 
+//helper funcion to send ajax message
 const sendAjax = (type, action, data, success) => {
     $.ajax({
         cache: false,
@@ -40,6 +44,7 @@ const sendAjax = (type, action, data, success) => {
     });
 };
 
+//TEMPORARY - actual ad view would go here
 const Ad = (props) => {
     return(
         <div className="adView">
@@ -59,8 +64,8 @@ const AdView = (props) => {
     );
 };
 
+//ran to show ads view
 const ShowAds = () => {
-    console.log("showing ads?");
     ReactDOM.render(
         <AdView />, document.querySelector('#ads')
     );
