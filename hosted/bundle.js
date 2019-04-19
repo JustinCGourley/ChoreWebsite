@@ -2,18 +2,20 @@
 
 var account = {};
 var curDomos = [];
+var loadedWeek = true;
 //handles creating a new chore
 var handleDomo = function handleDomo(e) {
     e.preventDefault();
 
     $("#domoMessage").animate({ height: 'hide' }, 350);
 
-    if ($("#domoName").val() == '' || $("#domoAge").val() == '' || $('#domoDesc').val() == '') {
+    if ($("#domoName").val() == '' || $("#domoCost").val() == '' || $('#domoDesc').val() == '') {
         handleError("All * fields are required");
         return false;
     }
 
     sendAjax('POST', $("#domoForm").attr("action"), $("#domoForm").serialize(), function () {
+        handleError("Created Chore", true, true);
         loadDomosFromServer();
     });
     return false;
@@ -86,13 +88,30 @@ var handleNextWeek = function handleNextWeek(e) {
             console.log("ERROR");
             handleError(err.error);
         }
-        handleError("Finished Week", true);
+        handleError("Finished Week", true, true);
         sendAjax('GET', '/getCurrentAccount', null, function (result) {
             account = result.data;
             loadDomosFromServer();
         });
     });
 };
+
+var changeView = function changeView(e, view) {
+    if (view == 'week') {
+        if (loadedWeek) {
+            return;
+        }
+        loadedWeek = true;
+    } else {
+        if (!loadedWeek) {
+            return;
+        }
+        loadedWeek = false;
+    }
+
+    loadDomosFromServer();
+};
+
 //display for chore creation window
 var DomoForm = function DomoForm(props) {
     return React.createElement(
@@ -107,7 +126,7 @@ var DomoForm = function DomoForm(props) {
         React.createElement(
             "label",
             { htmlFor: "title" },
-            "*Title: "
+            "* Title: "
         ),
         React.createElement("input", { id: "domoName", type: "text", name: "title", placeholder: "Chore Title" }),
         React.createElement("br", null),
@@ -121,18 +140,18 @@ var DomoForm = function DomoForm(props) {
         React.createElement(
             "label",
             { htmlFor: "cost" },
-            "*Cost: "
+            "* Cost: "
         ),
         React.createElement("input", { id: "domoCost", type: "number", min: "0.0", step: "0.01", name: "cost", placeholder: "Chore Cost" }),
         React.createElement("br", null),
         React.createElement(
             "label",
             { htmlFor: "day" },
-            "*Day: "
+            "* Day: "
         ),
         React.createElement(
             "select",
-            { id: "domoDay", name: "day" },
+            { id: "domoDay", className: "domoMakeLabel", name: "day" },
             React.createElement(
                 "option",
                 { value: "monday" },
@@ -167,7 +186,54 @@ var DomoForm = function DomoForm(props) {
                 "option",
                 { value: "sunday" },
                 "Sunday"
+            ),
+            React.createElement(
+                "option",
+                { value: "other" },
+                "Other"
             )
+        ),
+        React.createElement("br", null),
+        React.createElement(
+            "label",
+            { htmlFor: "type" },
+            "* Type:"
+        ),
+        React.createElement(
+            "select",
+            { id: "domoType", className: "domoMakeLabel", name: "type" },
+            React.createElement(
+                "option",
+                { value: "recurring" },
+                "Recurring Chore"
+            ),
+            React.createElement(
+                "option",
+                { value: "single" },
+                "One-Time Chore"
+            )
+        ),
+        React.createElement("br", null),
+        React.createElement(
+            "label",
+            { htmlFor: "childSet" },
+            "Child"
+        ),
+        React.createElement(
+            "select",
+            { id: "", className: "domoMakeLabel", name: "childSet" },
+            React.createElement(
+                "option",
+                { value: "any" },
+                "Any"
+            ),
+            props.data.map(function (child) {
+                return React.createElement(
+                    "option",
+                    { value: child.username },
+                    child.username
+                );
+            })
         ),
         React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf }),
         React.createElement("br", null),
@@ -255,7 +321,7 @@ var DomoMake = function DomoMake(props) {
         "div",
         { className: account.subscription ? "mainViewSubbed" : "mainView" },
         React.createElement(ChoreInfo, { csrf: props.csrf, data: props.data }),
-        React.createElement(DomoForm, { csrf: props.csrf })
+        React.createElement(DomoForm, { csrf: props.csrf, data: props.data })
     );
 };
 //shows completion status on each chore
@@ -279,6 +345,7 @@ var DeleteOption = function DeleteOption(props) {
             return handleDelete(e, props.info);
         }, name: "test" });
 };
+
 //view for a single chore
 var DomoList = function DomoList(props) {
 
@@ -305,6 +372,12 @@ var DomoList = function DomoList(props) {
             React.createElement(CompletedCheck, { completed: domo.completed, onClick: function onClick(e) {
                     return handleCheckClick(e, domo);
                 } }),
+            account.type === "Parent" && domo.childSet ? React.createElement(
+                "h3",
+                { className: "domoSet" },
+                "Set to Child: ",
+                domo.childSet
+            ) : null,
             account.type === "Parent" ? React.createElement(DeleteOption, { info: domo }) : null
         );
     });
@@ -318,29 +391,42 @@ var DomoList = function DomoList(props) {
 };
 //sorts out chores based on day
 var sortDomosByDay = function sortDomosByDay(domos) {
+
+    if (loadedWeek === false) {
+        var list = [];
+        for (var i = 0; i < domos.length; i++) {
+            if (domos[i].day === 'other') {
+                list.push(domos[i]);
+            }
+        }
+
+        return list;
+    }
+
     var sortedList = { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] };
-    for (var i = 0; i < domos.length; i++) {
-        switch (domos[i].day) {
+
+    for (var _i = 0; _i < domos.length; _i++) {
+        switch (domos[_i].day) {
             case 'monday':
-                sortedList.monday.push(domos[i]);
+                sortedList.monday.push(domos[_i]);
                 break;
             case 'tuesday':
-                sortedList.tuesday.push(domos[i]);
+                sortedList.tuesday.push(domos[_i]);
                 break;
             case 'wednesday':
-                sortedList.wednesday.push(domos[i]);
+                sortedList.wednesday.push(domos[_i]);
                 break;
             case 'thursday':
-                sortedList.thursday.push(domos[i]);
+                sortedList.thursday.push(domos[_i]);
                 break;
             case 'friday':
-                sortedList.friday.push(domos[i]);
+                sortedList.friday.push(domos[_i]);
                 break;
             case 'saturday':
-                sortedList.saturday.push(domos[i]);
+                sortedList.saturday.push(domos[_i]);
                 break;
             case 'sunday':
-                sortedList.sunday.push(domos[i]);
+                sortedList.sunday.push(domos[_i]);
                 break;
         }
     }
@@ -353,7 +439,7 @@ var DomoListDay = function DomoListDay(props) {
     if (props.domos.length === 0) {
         return React.createElement(
             "div",
-            { className: account.subscription ? "domoList mainViewSubbed" : "domoList mainView" },
+            { className: account.subscription ? "domoList" : "domoList" },
             React.createElement(
                 "h3",
                 { className: "emptyDomo" },
@@ -365,9 +451,27 @@ var DomoListDay = function DomoListDay(props) {
 
     var domos = sortDomosByDay(props.domos);
 
+    //if showing other list - show one row of chores
+    if (loadedWeek === false) {
+        return React.createElement(
+            "div",
+            { className: "domoList" },
+            React.createElement(
+                "div",
+                { className: "day" },
+                React.createElement(
+                    "h1",
+                    null,
+                    "Other"
+                ),
+                React.createElement(DomoList, { domos: domos, csrf: props.csrf })
+            )
+        );
+    }
+
     return React.createElement(
         "div",
-        { className: account.subscription ? "domoList mainViewSubbed" : "domoList mainView" },
+        { className: "domoList" },
         React.createElement(
             "div",
             { className: "day" },
@@ -440,6 +544,29 @@ var DomoListDay = function DomoListDay(props) {
         )
     );
 };
+
+var DomoListView = function DomoListView(props) {
+    return React.createElement(
+        "div",
+        { className: account.subscription ? "mainViewSubbed" : "mainView" },
+        React.createElement(
+            "div",
+            null,
+            React.createElement("input", { type: "submit", value: "View Week",
+                id: "weekViewButton", className: "makeDomoSubmit viewButton",
+                onClick: function onClick(e) {
+                    return changeView(e, 'week');
+                } }),
+            React.createElement("input", { type: "submit", value: "View Other",
+                id: "otherViewButton", className: "makeDomoSubmit viewButton",
+                onClick: function onClick(e) {
+                    return changeView(e, 'other');
+                } })
+        ),
+        React.createElement(DomoListDay, { domos: props.domos, csrf: props.csrf })
+    );
+};
+
 //view for child requesting them to link their account
 var LinkView = function LinkView(props) {
     return React.createElement(
@@ -500,13 +627,15 @@ var loadDomosFromServer = function loadDomosFromServer() {
 
     var dataSend = "link=" + account.link + "&type=" + account.type + "&_csrf=" + token;
     sendAjax('POST', '/getDomos', dataSend, function (data) {
-        ReactDOM.render(React.createElement(DomoListDay, { domos: data.domos, csrf: token }), document.querySelector("#domos"));
+
+        curDomos = data.domos;
+
+        ReactDOM.render(React.createElement(DomoListView, { domos: data.domos, csrf: token }), document.querySelector("#domos"));
 
         if (account.type === 'Child' && account.link !== 'none') {
             document.querySelector('#makeDomo').innerHTML = "";
         }
 
-        curDomos = data.domos;
         if (account.type === 'Parent') {
             loadLinkedAccounts();
         }
@@ -530,13 +659,13 @@ var setupViews = function setupViews(csrf) {
     if (account.type === "Child" && account.link === 'none') {
         ReactDOM.render(React.createElement(LinkView, { csrf: csrf }), document.querySelector('#makeDomo'));
     } else if (account.type === "Child" && account.link !== 'none') {
-        ReactDOM.render(React.createElement(DomoListDay, { domos: [], csrf: csrf }), document.querySelector("#domos"));
+        ReactDOM.render(React.createElement(DomoListView, { domos: [], csrf: csrf }), document.querySelector("#domos"));
 
         loadDomosFromServer();
     } else {
         ReactDOM.render(React.createElement(DomoMake, { csrf: csrf, data: [] }), document.querySelector("#makeDomo"));
 
-        ReactDOM.render(React.createElement(DomoListDay, { domos: [], csrf: csrf }), document.querySelector("#domos"));
+        ReactDOM.render(React.createElement(DomoListView, { domos: [], csrf: csrf }), document.querySelector("#domos"));
 
         loadDomosFromServer();
     }
@@ -557,6 +686,7 @@ var hideCount = 0;
 //shows error message
 var handleError = function handleError(message) {
     var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    var quick = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
     $("#errorMessage").text(message);
     $("#domoMessage").animate({ height: 'toggle' }, 350);
@@ -565,7 +695,9 @@ var handleError = function handleError(message) {
     errorMessage.style.color = change ? '#1cc425' : 'red';
 
     hideCount++;
-    setTimeout(hideError, 5000);
+
+    var time = quick ? 1500 : 5000;
+    setTimeout(hideError, time);
 };
 
 //hides error window

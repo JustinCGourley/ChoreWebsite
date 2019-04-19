@@ -39,7 +39,12 @@ const makeDomo = (req, res) => {
     day: req.body.day,
     completed: 'false',
     weekSet: req.session.account.currentWeek,
+    type: req.body.type,
   };
+
+  if (req.body.childSet !== 'any') {
+    domoData.childSet = req.body.childSet;
+  }
 
   const newDomo = new Domo.DomoModel(domoData);
   const domoPromise = newDomo.save();
@@ -76,11 +81,17 @@ const updateCompleted = (request, response) => {
 };
 
 // sorts through each chore and gives back only chores of a given week
-const sortDomosByWeek = (res, domos, week) => {
+const sortDomosByWeek = (res, domos, week, user = null) => {
   const domosForWeek = [];
   for (let i = 0; i < domos.length; i++) {
     if (`${domos[i].weekSet}` === `${week}`) {
-      domosForWeek.push(domos[i]);
+      if (user !== null && domos[i].childSet) {
+        if (domos[i].childSet === user) {
+          domosForWeek.push(domos[i]);
+        }
+      } else {
+        domosForWeek.push(domos[i]);
+      }
     }
   }
   return res.json({ domos: domosForWeek });
@@ -111,7 +122,7 @@ const getDomos = (request, response) => {
           return res.status(400).json({ error: err2, status: false });
         }
         const week = parentAccount.currentWeek;
-        return sortDomosByWeek(res, docs, week);
+        return sortDomosByWeek(res, docs, week, req.session.account.username);
       });
     }
 
@@ -137,18 +148,27 @@ const setupNewWeek = (request, response) => {
     const error = null;
 
     for (let i = 0; i < domos.length; i++) {
-      const domoData = {
-        title: domos[i].title,
-        cost: domos[i].cost,
-        description: domos[i].description,
-        owner: req.session.account._id,
-        day: domos[i].day,
-        completed: 'false',
-        weekSet: req.session.account.currentWeek + 1,
-      };
+      console.log(`test: ${domos[i].type} - ${domos[i].completed}`);
+      if (domos[i].type === 'recurring' ||
+         (domos[i].type === 'single' && domos[i].completed === 'false')) {
+        const domoData = {
+          title: domos[i].title,
+          cost: domos[i].cost,
+          description: domos[i].description,
+          owner: req.session.account._id,
+          day: domos[i].day,
+          completed: 'false',
+          weekSet: req.session.account.currentWeek + 1,
+          type: domos[i].type,
+        };
 
-      const newDomo = new Domo.DomoModel(domoData);
-      newDomo.save();
+        if (domos[i].childSet) {
+          domoData.childSet = domos[i].childSet;
+        }
+
+        const newDomo = new Domo.DomoModel(domoData);
+        newDomo.save();
+      }
     }
 
     if (error != null) {

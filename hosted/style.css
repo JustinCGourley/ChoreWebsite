@@ -101,7 +101,7 @@ nav:nth-child(1) {
     margin-left: 20px;
 }
 
-#domoDay{
+.domoMakeLabel{
     margin-left: 20px;
     width: 50%;
 }
@@ -413,12 +413,16 @@ h3.domoCost{
     border-radius: 6px;
 }
 
-
+.domoSet{
+    margin: 0px;
+    padding-left: 20px;
+    margin-top: 20px;
+}
 
 #main{
-    width: 50%;
     margin: auto;
     margin-top: 20px;
+    margin-bottom: 100px;
 }
 
 .earningsHistory{
@@ -610,4 +614,36 @@ input:focus{
 
 #accountUserInfo{
     margin-bottom: 50px;
+}
+
+.childListAccount h2{
+    padding-top: 50px;
+    margin-bottom: 100px;
+}
+
+.childListAccount h3{
+    display: inline-block;
+    width: 80%;
+}
+
+#unlinkButton{
+    display: inline-block;
+    width: 50px;
+    margin-left: 10px;
+}
+
+.viewButton{
+    width: 50%;
+    display: inline-block;
+    margin: 0px;
+    padding: 0px;
+    border-radius: 0px;
+}
+
+#weekViewButton{
+    border-radius: 10px 0px 0px 4px;
+}
+
+#otherViewButton{
+    border-radius: 0px 10px 4px 0px;
 }

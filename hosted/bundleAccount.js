@@ -1,55 +1,76 @@
-"use strict";
+'use strict';
 
 var account = {};
+
+var handleUnlink = function handleUnlink(e, child) {
+    e.preventDefault();
+
+    var token = document.querySelector('#csrfToken').value;
+    var data = 'user=' + child.username + '&_csrf=' + token;
+
+    sendAjax('POST', '/unlinkChild', data, function (err) {
+        if (!err.status) {
+            handleError("Something went wrong");
+        }
+
+        loadLinkedAccounts();
+    });
+};
+
 //shows linked accounts view
 var LinkedAccounts = function LinkedAccounts(props) {
     if (props.data.length === 0) {
         return React.createElement(
-            "div",
+            'div',
             null,
             React.createElement(
-                "h2",
+                'h2',
                 null,
-                "Linked Accounts:"
+                'Linked Accounts:'
             ),
             React.createElement(
-                "h3",
+                'h3',
                 null,
-                "None"
+                'None'
             )
         );
     }
 
     var childNodes = props.data.map(function (child) {
         return React.createElement(
-            "div",
-            { key: child._id, className: "childAccount" },
+            'div',
+            { key: child._id, className: 'childAccount' },
             React.createElement(
-                "h3",
+                'h3',
                 null,
-                "Account: ",
+                'Account: ',
                 child.username
-            )
+            ),
+            React.createElement('input', { type: 'submit', className: 'makeDomoSubmit linkPassSubmit',
+                id: 'unlinkButton',
+                onClick: function onClick(e) {
+                    return handleUnlink(e, child);
+                }, value: 'Unlink' })
         );
     });
 
     return React.createElement(
-        "div",
-        { className: "childListAccount" },
+        'div',
+        { className: 'childListAccount' },
         React.createElement(
-            "h2",
+            'h2',
             null,
-            "Linked Accounts:"
+            'Linked Accounts:'
         ),
         childNodes,
-        React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf })
+        React.createElement('input', { id: 'csrfToken', type: 'hidden', name: '_csrf', value: props.csrf })
     );
 };
 //loading in linked accounts
 var loadLinkedAccounts = function loadLinkedAccounts() {
     var token = document.querySelector('#csrfToken').value;
 
-    var dataSend = "link=" + account.link + "&_csrf=" + token;
+    var dataSend = 'link=' + account.link + '&_csrf=' + token;
 
     sendAjax('POST', '/getLinked', dataSend, function (data) {
         if (data.status === false) {
@@ -107,7 +128,7 @@ var handleChangePass = function handleChangePass(e) {
 var handleSubscribe = function handleSubscribe(e, csrf) {
     e.preventDefault();
 
-    var data = "_csrf=" + csrf;
+    var data = '_csrf=' + csrf;
 
     sendAjax('POST', '/subscribe', data, function (data) {
         if (!data.status) {
@@ -121,48 +142,48 @@ var handleSubscribe = function handleSubscribe(e, csrf) {
 //link password form
 var LinkPass = function LinkPass(props) {
     return React.createElement(
-        "form",
-        { id: "linkPassForm",
+        'form',
+        { id: 'linkPassForm',
             onSubmit: handleLinkPass,
-            name: "linkPassForm",
-            action: "/setLinkPass",
-            method: "POST",
-            className: "linkPassForm"
+            name: 'linkPassForm',
+            action: '/setLinkPass',
+            method: 'POST',
+            className: 'linkPassForm'
         },
         React.createElement(
-            "h3",
-            { htmlFor: "linkPass" },
-            "Set Link Password: "
+            'h3',
+            { htmlFor: 'linkPass' },
+            'Set Link Password: '
         ),
-        React.createElement("br", null),
-        React.createElement("input", { className: "inputBox linkPassSubmit", id: "linkPass",
-            type: "text", name: "linkPass", placeholder: "Link Password" }),
-        React.createElement("br", null),
-        React.createElement("input", { type: "hidden", name: "_csrf", value: props.csrf }),
-        React.createElement("input", { className: "linkPassSubmit makeDomoSubmit", type: "submit", value: "Set Link Password" })
+        React.createElement('br', null),
+        React.createElement('input', { className: 'inputBox linkPassSubmit', id: 'linkPass',
+            type: 'text', name: 'linkPass', placeholder: 'Link Password' }),
+        React.createElement('br', null),
+        React.createElement('input', { type: 'hidden', name: '_csrf', value: props.csrf }),
+        React.createElement('input', { className: 'linkPassSubmit makeDomoSubmit', type: 'submit', value: 'Set Link Password' })
     );
 };
 //pass change form
 var ChangePass = function ChangePass(props) {
     return React.createElement(
-        "form",
+        'form',
         {
-            id: "changePass",
-            className: "changePass",
+            id: 'changePass',
+            className: 'changePass',
             onSubmit: handleChangePass,
-            name: "passForm",
-            action: "/changePass",
-            method: "POST"
+            name: 'passForm',
+            action: '/changePass',
+            method: 'POST'
         },
         React.createElement(
-            "h3",
+            'h3',
             null,
-            "Reset Password:"
+            'Reset Password:'
         ),
-        React.createElement("input", { id: "pass", className: "inputBox", type: "password", name: "pass", placeholder: "Password" }),
-        React.createElement("input", { id: "pass2", type: "password", name: "pass2", placeholder: "Retype Password" }),
-        React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf }),
-        React.createElement("input", { className: "linkPassSubmit makeDomoSubmit", type: "submit", value: "Change Password" })
+        React.createElement('input', { id: 'pass', className: 'inputBox', type: 'password', name: 'pass', placeholder: 'Password' }),
+        React.createElement('input', { id: 'pass2', type: 'password', name: 'pass2', placeholder: 'Retype Password' }),
+        React.createElement('input', { id: 'csrfToken', type: 'hidden', name: '_csrf', value: props.csrf }),
+        React.createElement('input', { className: 'linkPassSubmit makeDomoSubmit', type: 'submit', value: 'Change Password' })
     );
 };
 //subscribe view (changes based on if account is currently subscribed or not)
@@ -170,124 +191,124 @@ var SubscribeView = function SubscribeView(props) {
 
     if (account.type === 'Child') {
         return React.createElement(
-            "div",
+            'div',
             null,
             React.createElement(
-                "h2",
-                { className: "subscribeActive" },
-                "Subscription: "
+                'h2',
+                { className: 'subscribeActive' },
+                'Subscription: '
             ),
             React.createElement(
-                "h2",
+                'h2',
                 { className: account.subscription ? "subscribeActive domoIsCompleted" : "subscribeActive domoNotCompleted" },
                 account.subscription ? "Active" : "Inactive"
             ),
             account.subscription ? null : React.createElement(
-                "p",
+                'p',
                 null,
-                "Only your parent can activate an account subscription"
+                'Only your parent can activate an account subscription'
             )
         );
     }
 
     if (account.subscription) {
         return React.createElement(
-            "div",
+            'div',
             null,
             React.createElement(
-                "h2",
-                { className: "subscribeActive" },
-                "Subscription: "
+                'h2',
+                { className: 'subscribeActive' },
+                'Subscription: '
             ),
             React.createElement(
-                "h2",
-                { className: "subscribeActive domoIsCompleted" },
-                "Active"
+                'h2',
+                { className: 'subscribeActive domoIsCompleted' },
+                'Active'
             )
         );
     }
 
     return React.createElement(
-        "div",
+        'div',
         null,
         React.createElement(
-            "h2",
-            { className: "subscribeActive" },
-            "Subscription: "
+            'h2',
+            { className: 'subscribeActive' },
+            'Subscription: '
         ),
         React.createElement(
-            "h2",
-            { className: "subscribeActive domoNotCompleted" },
-            " Inactive"
+            'h2',
+            { className: 'subscribeActive domoNotCompleted' },
+            ' Inactive'
         ),
         React.createElement(
-            "p",
+            'p',
             null,
-            "What can a subscription offer you?"
+            'What can a subscription offer you?'
         ),
         React.createElement(
-            "p",
+            'p',
             null,
-            "+ Access to history"
+            '+ Access to history'
         ),
         React.createElement(
-            "p",
+            'p',
             null,
-            "+ No Ads"
+            '+ No Ads'
         ),
         React.createElement(
-            "p",
+            'p',
             null,
-            "Only $10 a year!"
+            'Only $10 a year!'
         ),
-        React.createElement("input", { className: "makeDomoSubmit linkPassSubmit", type: "submit",
+        React.createElement('input', { className: 'makeDomoSubmit linkPassSubmit', type: 'submit',
             onClick: function onClick(e) {
                 return handleSubscribe(e, props.csrf);
-            }, value: "Subscribe for $10" })
+            }, value: 'Subscribe for $10' })
     );
 };
 //main screen view
 var FormView = function FormView(props) {
     return React.createElement(
-        "div",
+        'div',
         { className: account.subscription ? "mainViewSubbed" : "mainView" },
         React.createElement(
-            "div",
-            { className: "accountSubscribe accountSubview" },
+            'div',
+            { className: 'accountSubscribe accountSubview' },
             React.createElement(SubscribeView, { csrf: props.csrf })
         ),
         React.createElement(
-            "div",
-            { className: "accountHeader accountSubview" },
+            'div',
+            { className: 'accountHeader accountSubview' },
             React.createElement(ChangePass, { csrf: props.csrf }),
             React.createElement(
-                "div",
-                { id: "accountUserInfo" },
+                'div',
+                { id: 'accountUserInfo' },
                 React.createElement(
-                    "h1",
+                    'h1',
                     null,
-                    "User: ",
+                    'User: ',
                     account.user
                 ),
                 React.createElement(
-                    "h3",
+                    'h3',
                     null,
-                    "Account Type: ",
+                    'Account Type: ',
                     account.type
                 )
             )
         ),
         React.createElement(
-            "div",
-            { className: "accountLinked accountSubview" },
+            'div',
+            { className: 'accountLinked accountSubview' },
             account.type === 'Parent' ? React.createElement(LinkPass, { csrf: props.csrf }) : null,
             account.type === 'Child' ? React.createElement(
-                "h3",
+                'h3',
                 null,
-                "Account linked to: ",
+                'Account linked to: ',
                 account.link
             ) : React.createElement(LinkedAccounts, { data: props.data, csrf: props.csrf }),
-            React.createElement("br", null)
+            React.createElement('br', null)
         )
     );
 };
@@ -329,6 +350,7 @@ var hideCount = 0;
 //shows error message
 var handleError = function handleError(message) {
     var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    var quick = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
     $("#errorMessage").text(message);
     $("#domoMessage").animate({ height: 'toggle' }, 350);
@@ -337,7 +359,9 @@ var handleError = function handleError(message) {
     errorMessage.style.color = change ? '#1cc425' : 'red';
 
     hideCount++;
-    setTimeout(hideError, 5000);
+
+    var time = quick ? 1500 : 5000;
+    setTimeout(hideError, time);
 };
 
 //hides error window

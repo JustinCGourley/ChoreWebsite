@@ -239,6 +239,22 @@ const subscribe = (request, response) => {
   });
 };
 
+const unlinkChild = (request, response) => {
+  const req = request;
+  const res = response;
+
+  const user = { username: req.body.user };
+  const newData = { link: 'none' };
+  Account.AccountModel.findOneAndUpdate(user, newData, (err) => {
+    if (err) {
+      console.log(err);
+      res.status(400).json({ error: err, status: false });
+    }
+
+    res.json({ status: true });
+  });
+};
+
 // returns the current users csrf token
 const getToken = (request, response) => {
   const req = request;
@@ -263,3 +279,4 @@ module.exports.setLinkPass = setLinkPass;
 module.exports.getLinked = getAllLinked;
 module.exports.changePass = changePass;
 module.exports.subscribe = subscribe;
+module.exports.unlinkChild = unlinkChild;

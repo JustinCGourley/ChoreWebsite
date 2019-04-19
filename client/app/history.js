@@ -1,6 +1,26 @@
 let account = {};
 let curDomos = [];
 let week = 0;
+let loadedWeek = true;
+
+const changeView = (e, view) => {
+    if (view == 'week')
+    {
+        if (loadedWeek){return;}
+        loadedWeek = true;
+    }
+    else
+    {
+        if (!loadedWeek){return;}
+        loadedWeek = false;
+    }
+
+    let token = document.querySelector('#csrfToken').value;
+    ReactDOM.render(
+        <DomoListView domos={curDomos} csrf={token}/>, document.querySelector("#main")
+    );
+}
+
 //completed view on chore view
 const CompletedCheck = (props) => {
     return(
@@ -34,6 +54,21 @@ const DomoList = function(props) {
 };
 //sorts chores into days
 const sortDomosByDay = (domos) => {
+
+    if (loadedWeek === false)
+    {
+        const list = [];
+        for (let i = 0; i < domos.length; i++)
+        {
+            if (domos[i].day === 'other')
+            {
+                list.push(domos[i]);
+            }
+        }
+
+        return list;
+    }
+
     const sortedList = {monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []};
     for (let i = 0; i < domos.length; i++)
     {
@@ -67,19 +102,25 @@ const sortDomosByDay = (domos) => {
 }
 //displays chores by day
 const DomoListDay = function(props){
-    if (props.domos.length === 0) {
-        return (
+    
+
+    let domos = sortDomosByDay(props.domos);
+
+    //if showing other list - show one row of chores
+    if (loadedWeek === false)
+    {
+        return(
             <div className="domoList">
-                <h3 className="emptyDomo">No Chores Found</h3>
-                <input id="csrfToken" type="hidden" name="_csrf" value={props.csrf} />
+                <div className="day">
+                    <h1>Other</h1>
+                    <DomoList domos={domos} csrf={props.csrf} />
+                </div>
             </div>
         );
     }
 
-    let domos = sortDomosByDay(props.domos);
-
     return (
-        <div className="dayContainer">
+        <div className="domoList">
             <div className="day">
                 <h1>Monday</h1>
                 <DomoList domos={domos.monday} csrf={props.csrf} />
@@ -111,15 +152,32 @@ const DomoListDay = function(props){
         </div>
     );
 };
+
+const DomoListView = function(props) {
+    return(
+        <div className={(account.subscription) ? "mainViewSubbed" : "mainView"}>
+            <div>
+                <input type="submit" value="View Week" 
+                id="weekViewButton" className="makeDomoSubmit viewButton"
+                onClick={(e) => changeView(e, 'week')}/>
+                <input type="submit" value="View Other" 
+                id="otherViewButton" className="makeDomoSubmit viewButton"
+                onClick={(e) => changeView(e, 'other')}/>
+            </div>
+            <DomoListDay domos={props.domos} csrf={props.csrf}/>
+        </div>
+    )
+}
+
 //loads chores from server
 const loadDomosFromServer = (csrf) => {
 
     let dataSend = `link=${account.link}&type=${account.type}&week=${week}&_csrf=${csrf}`;
     sendAjax('POST', '/getDomos', dataSend, (data) => {
-        ReactDOM.render(
-            <DomoListDay domos={data.domos} csrf={csrf}/>, document.querySelector("#main")
-        );
         curDomos = data.domos;
+        ReactDOM.render(
+            <DomoListView domos={data.domos} csrf={csrf}/>, document.querySelector("#main")
+        );
         ReactDOM.render(
             <LinkedAccounts csrf={csrf} />, document.querySelector('#children')
         );
@@ -239,7 +297,7 @@ const showViews = (csrf, data = []) => {
             <LinkedAccounts csrf={csrf}/>,document.querySelector('#children')
         );
         ReactDOM.render(
-            <DomoListDay csrf={csrf} domos={[]}/>, document.querySelector('#main')
+            <DomoListView csrf={csrf} domos={[]}/>, document.querySelector('#main')
         );
     }
 };

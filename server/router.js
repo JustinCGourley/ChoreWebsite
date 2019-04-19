@@ -21,6 +21,7 @@ const router = (app) => {
   app.post('/newWeek', mid.requiresLogin, controllers.Domo.newWeek);
   app.post('/changePass', mid.requiresLogin, controllers.Account.changePass);
   app.post('/subscribe', mid.requiresLogin, controllers.Account.subscribe);
+  app.post('/unlinkChild', mid.requiresLogin, controllers.Account.unlinkChild);
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
 };
 

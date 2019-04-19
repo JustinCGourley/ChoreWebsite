@@ -157,6 +157,7 @@ var hideCount = 0;
 //shows error message
 var handleError = function handleError(message) {
     var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    var quick = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
     $("#errorMessage").text(message);
     $("#domoMessage").animate({ height: 'toggle' }, 350);
@@ -165,7 +166,9 @@ var handleError = function handleError(message) {
     errorMessage.style.color = change ? '#1cc425' : 'red';
 
     hideCount++;
-    setTimeout(hideError, 5000);
+
+    var time = quick ? 1500 : 5000;
+    setTimeout(hideError, time);
 };
 
 //hides error window

@@ -1,18 +1,20 @@
 
 let account = {};
 let curDomos = [];
+let loadedWeek = true;
 //handles creating a new chore
 const handleDomo = (e) => {
     e.preventDefault();
 
     $("#domoMessage").animate({height: 'hide'},350);
 
-    if ($("#domoName").val() == '' || $("#domoAge").val() == '' || $('#domoDesc').val() == ''){
+    if ($("#domoName").val() == '' || $("#domoCost").val() == '' || $('#domoDesc').val() == ''){
         handleError("All * fields are required");
         return false;
     }
 
     sendAjax('POST', $("#domoForm").attr("action"), $("#domoForm").serialize(), function() {
+        handleError("Created Chore", true, true);
         loadDomosFromServer();
     });
     return false;
@@ -92,13 +94,29 @@ const handleNextWeek = (e) => {
             console.log("ERROR");
             handleError(err.error);
         }
-        handleError("Finished Week", true);
+        handleError("Finished Week", true, true);
         sendAjax('GET', '/getCurrentAccount', null, (result) => {
             account = result.data;
             loadDomosFromServer();
         });
     });
 };
+
+const changeView = (e, view) => {
+    if (view == 'week')
+    {
+        if (loadedWeek){return;}
+        loadedWeek = true;
+    }
+    else
+    {
+        if (!loadedWeek){return;}
+        loadedWeek = false;
+    }
+
+    loadDomosFromServer();
+}
+
 //display for chore creation window
 const DomoForm = (props) => {
     return (
@@ -110,17 +128,17 @@ const DomoForm = (props) => {
         className="domoForm"
         >
         
-            <label htmlFor="title">*Title: </label>
+            <label htmlFor="title">* Title: </label>
             <input id="domoName" type="text" name="title" placeholder="Chore Title"/>
             <br/>
             <label id= "domoDescLabel" htmlFor="description">Description: </label>
             <input id="domoDescription" type="text" name="description" placeholder="Chore Description"/>
             <br/>
-            <label htmlFor="cost">*Cost: </label>
+            <label htmlFor="cost">* Cost: </label>
             <input id="domoCost" type="number" min="0.0" step="0.01" name="cost" placeholder="Chore Cost"/>
             <br/>
-            <label htmlFor="day">*Day: </label>
-            <select id="domoDay" name="day">
+            <label htmlFor="day">* Day: </label>
+            <select id="domoDay" className="domoMakeLabel" name="day">
                 <option value="monday">Monday</option>
                 <option value="tuesday">Tuesday</option>
                 <option value="wednesday">Wednesday</option>
@@ -128,6 +146,23 @@ const DomoForm = (props) => {
                 <option value="friday">Friday</option>
                 <option value="saturday">Saturday</option>
                 <option value="sunday">Sunday</option>
+                <option value="other">Other</option>
+            </select>
+            <br/>
+            <label htmlFor="type">* Type:</label>
+            <select id="domoType" className="domoMakeLabel" name="type">
+                <option value="recurring">Recurring Chore</option>
+                <option value="single">One-Time Chore</option>
+            </select>
+            <br/>
+            <label htmlFor="childSet">Child</label>
+            <select id="" className="domoMakeLabel" name="childSet">
+                <option value="any">Any</option>
+                {
+                    props.data.map(function(child){
+                        return <option value={child.username}>{child.username}</option>
+                    })
+                }
             </select>
             <input id="csrfToken" type="hidden" name="_csrf" value={props.csrf} />
             <br/>
@@ -191,7 +226,7 @@ const DomoMake = (props) => {
     return (
         <div className={account.subscription ? "mainViewSubbed" : "mainView"}>
             <ChoreInfo csrf={props.csrf} data={props.data}/>
-            <DomoForm csrf={props.csrf} />
+            <DomoForm csrf={props.csrf} data={props.data}/>
         </div>
     );
 };
@@ -214,6 +249,7 @@ const DeleteOption = (props) => {
         className="domoDelete" onClick={(e) => handleDelete(e,props.info)} name="test"/>
     );
 };
+
 //view for a single chore
 const DomoList = function(props) {
     
@@ -224,6 +260,8 @@ const DomoList = function(props) {
             <h3 className="domoName">{domo.title}</h3>
             {(domo.description) ? <h3 className="domoDesc">{domo.description}</h3> : null}
             <CompletedCheck completed={domo.completed} onClick={(e) => handleCheckClick(e,domo)} />
+            {account.type === "Parent" && domo.childSet ? 
+            <h3 className="domoSet">Set to Child: {domo.childSet}</h3> : null}
             {account.type === "Parent" ? <DeleteOption info={domo}/> : null}
             </div>
         );
@@ -238,7 +276,23 @@ const DomoList = function(props) {
 };
 //sorts out chores based on day
 const sortDomosByDay = (domos) => {
+    
+    if (loadedWeek === false)
+    {
+        const list = [];
+        for (let i = 0; i < domos.length; i++)
+        {
+            if (domos[i].day === 'other')
+            {
+                list.push(domos[i]);
+            }
+        }
+
+        return list;
+    }
+
     const sortedList = {monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []};
+    
     for (let i = 0; i < domos.length; i++)
     {
         switch(domos[i].day)
@@ -274,7 +328,7 @@ const DomoListDay = function(props){
 
     if (props.domos.length === 0) {
         return (
-            <div className={(account.subscription) ? "domoList mainViewSubbed" : "domoList mainView"}>
+            <div className={(account.subscription) ? "domoList" : "domoList"}>
                 <h3 className="emptyDomo">No Chores Added</h3>
                 <input id="csrfToken" type="hidden" name="_csrf" value={props.csrf} />
             </div>
@@ -283,39 +337,69 @@ const DomoListDay = function(props){
 
     let domos = sortDomosByDay(props.domos);
 
+    //if showing other list - show one row of chores
+    if (loadedWeek === false)
+    {
+        return(
+            <div className="domoList">
+                <div className="day">
+                    <h1>Other</h1>
+                    <DomoList domos={domos} csrf={props.csrf} />
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className={(account.subscription) ? "domoList mainViewSubbed" : "domoList mainView"}>
-            <div className="day">
-                <h1>Monday</h1>
-                <DomoList domos={domos.monday} csrf={props.csrf} />
+            <div className="domoList">
+                <div className="day">
+                    <h1>Monday</h1>
+                    <DomoList domos={domos.monday} csrf={props.csrf} />
+                </div>
+                <div className="day">
+                    <h1>Tuesday</h1>
+                    <DomoList domos={domos.tuesday} csrf={props.csrf}/>
+                </div>
+                <div className="day">
+                    <h1>Wednesday</h1>
+                    <DomoList domos={domos.wednesday} csrf={props.csrf}/>
+                </div>
+                <div className="day">
+                    <h1>Thursday</h1>
+                    <DomoList domos={domos.thursday} csrf={props.csrf}/>
+                </div>
+                <div className="day">
+                    <h1>Friday</h1>
+                    <DomoList domos={domos.friday} csrf={props.csrf}/>
+                </div>
+                <div className="day">
+                    <h1>Saturday</h1>
+                    <DomoList domos={domos.saturday} csrf={props.csrf}/>
+                </div>
+                <div className="day">
+                    <h1>Sunday</h1>
+                    <DomoList domos={domos.sunday} csrf={props.csrf}/>
+                </div>
             </div>
-            <div className="day">
-                <h1>Tuesday</h1>
-                <DomoList domos={domos.tuesday} csrf={props.csrf}/>
-            </div>
-            <div className="day">
-                <h1>Wednesday</h1>
-                <DomoList domos={domos.wednesday} csrf={props.csrf}/>
-            </div>
-            <div className="day">
-                <h1>Thursday</h1>
-                <DomoList domos={domos.thursday} csrf={props.csrf}/>
-            </div>
-            <div className="day">
-                <h1>Friday</h1>
-                <DomoList domos={domos.friday} csrf={props.csrf}/>
-            </div>
-            <div className="day">
-                <h1>Saturday</h1>
-                <DomoList domos={domos.saturday} csrf={props.csrf}/>
-            </div>
-            <div className="day">
-                <h1>Sunday</h1>
-                <DomoList domos={domos.sunday} csrf={props.csrf}/>
-            </div>
-        </div>
     );
 };
+
+const DomoListView = function(props) {
+    return(
+        <div className={(account.subscription) ? "mainViewSubbed" : "mainView"}>
+            <div>
+                <input type="submit" value="View Week" 
+                id="weekViewButton" className="makeDomoSubmit viewButton"
+                onClick={(e) => changeView(e, 'week')}/>
+                <input type="submit" value="View Other" 
+                id="otherViewButton" className="makeDomoSubmit viewButton"
+                onClick={(e) => changeView(e, 'other')}/>
+            </div>
+            <DomoListDay domos={props.domos} csrf={props.csrf}/>
+        </div>
+    )
+}
+
 //view for child requesting them to link their account
 const LinkView = function(props) {
     return (
@@ -367,8 +451,11 @@ const loadDomosFromServer = () => {
 
     let dataSend = `link=${account.link}&type=${account.type}&_csrf=${token}`;
     sendAjax('POST', '/getDomos', dataSend, (data) => {
+        
+        curDomos = data.domos;
+
         ReactDOM.render(
-            <DomoListDay domos={data.domos} csrf={token}/>, document.querySelector("#domos")
+            <DomoListView domos={data.domos} csrf={token}/>, document.querySelector("#domos")
         );
 
         if (account.type === 'Child' && account.link !== 'none')
@@ -376,7 +463,6 @@ const loadDomosFromServer = () => {
             document.querySelector('#makeDomo').innerHTML = "";
         }
 
-        curDomos = data.domos;
         if (account.type === 'Parent')
         {
             loadLinkedAccounts();
@@ -411,7 +497,7 @@ const setupViews = function(csrf)
     else if (account.type === "Child" && account.link !== 'none')
     {
         ReactDOM.render(
-            <DomoListDay domos={[]} csrf={csrf}/>, document.querySelector("#domos")
+            <DomoListView domos={[]} csrf={csrf}/>, document.querySelector("#domos")
         );
 
         loadDomosFromServer();
@@ -423,7 +509,7 @@ const setupViews = function(csrf)
         );
         
         ReactDOM.render(
-            <DomoListDay domos={[]} csrf={csrf}/>, document.querySelector("#domos")
+            <DomoListView domos={[]} csrf={csrf}/>, document.querySelector("#domos")
         );
         
 

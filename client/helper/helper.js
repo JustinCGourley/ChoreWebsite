@@ -1,6 +1,6 @@
 let hideCount = 0;
 //shows error message
-const handleError = (message, change = false) =>
+const handleError = (message, change = false, quick = false) =>
 {
     $("#errorMessage").text(message);
     $("#domoMessage").animate({height: 'toggle'}, 350);
@@ -9,7 +9,9 @@ const handleError = (message, change = false) =>
     errorMessage.style.color = (change) ? '#1cc425' : 'red';
 
     hideCount++;
-    setTimeout(hideError, 5000);
+
+    let time = (quick) ? 1500 : 5000;
+    setTimeout(hideError, time);
 }; 
 
 //hides error window

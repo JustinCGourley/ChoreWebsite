@@ -1,17 +1,36 @@
-"use strict";
+'use strict';
 
 var account = {};
 var curDomos = [];
 var week = 0;
+var loadedWeek = true;
+
+var changeView = function changeView(e, view) {
+    if (view == 'week') {
+        if (loadedWeek) {
+            return;
+        }
+        loadedWeek = true;
+    } else {
+        if (!loadedWeek) {
+            return;
+        }
+        loadedWeek = false;
+    }
+
+    var token = document.querySelector('#csrfToken').value;
+    ReactDOM.render(React.createElement(DomoListView, { domos: curDomos, csrf: token }), document.querySelector("#main"));
+};
+
 //completed view on chore view
 var CompletedCheck = function CompletedCheck(props) {
     return React.createElement(
-        "div",
-        { className: "domoCompleted" },
+        'div',
+        { className: 'domoCompleted' },
         React.createElement(
-            "h3",
+            'h3',
             { className: props.completed !== 'false' ? "completedDesc domoIsCompleted" : "completedDesc domoNotCompleted" },
-            props.completed !== 'false' ? "Completed by: " + props.completed : "Not Completed"
+            props.completed !== 'false' ? 'Completed by: ' + props.completed : "Not Completed"
         )
     );
 };
@@ -20,22 +39,22 @@ var DomoList = function DomoList(props) {
 
     var domoNodes = props.domos.map(function (domo) {
         return React.createElement(
-            "div",
-            { key: domo._id, className: "domo" },
+            'div',
+            { key: domo._id, className: 'domo' },
             React.createElement(
-                "h3",
-                { className: "domoCost" },
-                "$",
+                'h3',
+                { className: 'domoCost' },
+                '$',
                 domo.cost
             ),
             React.createElement(
-                "h3",
-                { className: "domoName" },
+                'h3',
+                { className: 'domoName' },
                 domo.title
             ),
             domo.description ? React.createElement(
-                "h3",
-                { className: "domoDesc" },
+                'h3',
+                { className: 'domoDesc' },
                 domo.description
             ) : null,
             React.createElement(CompletedCheck, { completed: domo.completed })
@@ -43,37 +62,49 @@ var DomoList = function DomoList(props) {
     });
 
     return React.createElement(
-        "div",
-        { className: "domoList" },
+        'div',
+        { className: 'domoList' },
         domoNodes,
-        React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf })
+        React.createElement('input', { id: 'csrfToken', type: 'hidden', name: '_csrf', value: props.csrf })
     );
 };
 //sorts chores into days
 var sortDomosByDay = function sortDomosByDay(domos) {
+
+    if (loadedWeek === false) {
+        var list = [];
+        for (var i = 0; i < domos.length; i++) {
+            if (domos[i].day === 'other') {
+                list.push(domos[i]);
+            }
+        }
+
+        return list;
+    }
+
     var sortedList = { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] };
-    for (var i = 0; i < domos.length; i++) {
-        switch (domos[i].day) {
+    for (var _i = 0; _i < domos.length; _i++) {
+        switch (domos[_i].day) {
             case 'monday':
-                sortedList.monday.push(domos[i]);
+                sortedList.monday.push(domos[_i]);
                 break;
             case 'tuesday':
-                sortedList.tuesday.push(domos[i]);
+                sortedList.tuesday.push(domos[_i]);
                 break;
             case 'wednesday':
-                sortedList.wednesday.push(domos[i]);
+                sortedList.wednesday.push(domos[_i]);
                 break;
             case 'thursday':
-                sortedList.thursday.push(domos[i]);
+                sortedList.thursday.push(domos[_i]);
                 break;
             case 'friday':
-                sortedList.friday.push(domos[i]);
+                sortedList.friday.push(domos[_i]);
                 break;
             case 'saturday':
-                sortedList.saturday.push(domos[i]);
+                sortedList.saturday.push(domos[_i]);
                 break;
             case 'sunday':
-                sortedList.sunday.push(domos[i]);
+                sortedList.sunday.push(domos[_i]);
                 break;
         }
     }
@@ -82,103 +113,132 @@ var sortDomosByDay = function sortDomosByDay(domos) {
 };
 //displays chores by day
 var DomoListDay = function DomoListDay(props) {
-    if (props.domos.length === 0) {
-        return React.createElement(
-            "div",
-            { className: "domoList" },
-            React.createElement(
-                "h3",
-                { className: "emptyDomo" },
-                "No Chores Found"
-            ),
-            React.createElement("input", { id: "csrfToken", type: "hidden", name: "_csrf", value: props.csrf })
-        );
-    }
 
     var domos = sortDomosByDay(props.domos);
 
-    return React.createElement(
-        "div",
-        { className: "dayContainer" },
-        React.createElement(
-            "div",
-            { className: "day" },
+    //if showing other list - show one row of chores
+    if (loadedWeek === false) {
+        return React.createElement(
+            'div',
+            { className: 'domoList' },
             React.createElement(
-                "h1",
+                'div',
+                { className: 'day' },
+                React.createElement(
+                    'h1',
+                    null,
+                    'Other'
+                ),
+                React.createElement(DomoList, { domos: domos, csrf: props.csrf })
+            )
+        );
+    }
+
+    return React.createElement(
+        'div',
+        { className: 'domoList' },
+        React.createElement(
+            'div',
+            { className: 'day' },
+            React.createElement(
+                'h1',
                 null,
-                "Monday"
+                'Monday'
             ),
             React.createElement(DomoList, { domos: domos.monday, csrf: props.csrf })
         ),
         React.createElement(
-            "div",
-            { className: "day" },
+            'div',
+            { className: 'day' },
             React.createElement(
-                "h1",
+                'h1',
                 null,
-                "Tuesday"
+                'Tuesday'
             ),
             React.createElement(DomoList, { domos: domos.tuesday, csrf: props.csrf })
         ),
         React.createElement(
-            "div",
-            { className: "day" },
+            'div',
+            { className: 'day' },
             React.createElement(
-                "h1",
+                'h1',
                 null,
-                "Wednesday"
+                'Wednesday'
             ),
             React.createElement(DomoList, { domos: domos.wednesday, csrf: props.csrf })
         ),
         React.createElement(
-            "div",
-            { className: "day" },
+            'div',
+            { className: 'day' },
             React.createElement(
-                "h1",
+                'h1',
                 null,
-                "Thursday"
+                'Thursday'
             ),
             React.createElement(DomoList, { domos: domos.thursday, csrf: props.csrf })
         ),
         React.createElement(
-            "div",
-            { className: "day" },
+            'div',
+            { className: 'day' },
             React.createElement(
-                "h1",
+                'h1',
                 null,
-                "Friday"
+                'Friday'
             ),
             React.createElement(DomoList, { domos: domos.friday, csrf: props.csrf })
         ),
         React.createElement(
-            "div",
-            { className: "day" },
+            'div',
+            { className: 'day' },
             React.createElement(
-                "h1",
+                'h1',
                 null,
-                "Saturday"
+                'Saturday'
             ),
             React.createElement(DomoList, { domos: domos.saturday, csrf: props.csrf })
         ),
         React.createElement(
-            "div",
-            { className: "day" },
+            'div',
+            { className: 'day' },
             React.createElement(
-                "h1",
+                'h1',
                 null,
-                "Sunday"
+                'Sunday'
             ),
             React.createElement(DomoList, { domos: domos.sunday, csrf: props.csrf })
         )
     );
 };
+
+var DomoListView = function DomoListView(props) {
+    return React.createElement(
+        'div',
+        { className: account.subscription ? "mainViewSubbed" : "mainView" },
+        React.createElement(
+            'div',
+            null,
+            React.createElement('input', { type: 'submit', value: 'View Week',
+                id: 'weekViewButton', className: 'makeDomoSubmit viewButton',
+                onClick: function onClick(e) {
+                    return changeView(e, 'week');
+                } }),
+            React.createElement('input', { type: 'submit', value: 'View Other',
+                id: 'otherViewButton', className: 'makeDomoSubmit viewButton',
+                onClick: function onClick(e) {
+                    return changeView(e, 'other');
+                } })
+        ),
+        React.createElement(DomoListDay, { domos: props.domos, csrf: props.csrf })
+    );
+};
+
 //loads chores from server
 var loadDomosFromServer = function loadDomosFromServer(csrf) {
 
-    var dataSend = "link=" + account.link + "&type=" + account.type + "&week=" + week + "&_csrf=" + csrf;
+    var dataSend = 'link=' + account.link + '&type=' + account.type + '&week=' + week + '&_csrf=' + csrf;
     sendAjax('POST', '/getDomos', dataSend, function (data) {
-        ReactDOM.render(React.createElement(DomoListDay, { domos: data.domos, csrf: csrf }), document.querySelector("#main"));
         curDomos = data.domos;
+        ReactDOM.render(React.createElement(DomoListView, { domos: data.domos, csrf: csrf }), document.querySelector("#main"));
         ReactDOM.render(React.createElement(LinkedAccounts, { csrf: csrf }), document.querySelector('#children'));
     });
 };
@@ -205,48 +265,48 @@ var LinkedAccounts = function LinkedAccounts(csrf) {
 
     var nodes = data.map(function (node) {
         return React.createElement(
-            "div",
-            { className: "child" },
+            'div',
+            { className: 'child' },
             React.createElement(
-                "h2",
+                'h2',
                 null,
-                "User: ",
+                'User: ',
                 node.user
             ),
             React.createElement(
-                "h3",
-                { className: "childEarned" },
-                "Amount Earned: ",
+                'h3',
+                { className: 'childEarned' },
+                'Amount Earned: ',
                 node.num,
-                " "
+                ' '
             )
         );
     });
 
     if (data.length === 0) {
         return React.createElement(
-            "div",
-            { className: "earningsHistory" },
+            'div',
+            { className: 'earningsHistory' },
             React.createElement(
-                "h1",
+                'h1',
                 null,
-                "Earnings:"
+                'Earnings:'
             ),
             React.createElement(
-                "h2",
+                'h2',
                 null,
-                "No data / No Completed Tasks"
+                'No data / No Completed Tasks'
             )
         );
     }
 
     return React.createElement(
-        "div",
-        { className: "earningsHistory" },
+        'div',
+        { className: 'earningsHistory' },
         React.createElement(
-            "h1",
+            'h1',
             null,
-            "Earnings:"
+            'Earnings:'
         ),
         nodes
     );
@@ -261,70 +321,70 @@ var handleWeekChange = function handleWeekChange(e, change) {
 //shows controls view
 var Controls = function Controls(props) {
     return React.createElement(
-        "div",
-        { className: "historyControls" },
-        React.createElement("input", { type: "submit", onClick: function onClick(e) {
+        'div',
+        { className: 'historyControls' },
+        React.createElement('input', { type: 'submit', onClick: function onClick(e) {
                 return handleWeekChange(e, -1);
-            }, value: "Previous Week",
+            }, value: 'Previous Week',
             id: week > 1 ? null : "dontShow" }),
         React.createElement(
-            "h1",
+            'h1',
             null,
-            "Week: ",
+            'Week: ',
             week
         ),
-        React.createElement("input", { type: "submit", onClick: function onClick(e) {
+        React.createElement('input', { type: 'submit', onClick: function onClick(e) {
                 return handleWeekChange(e, 1);
-            }, value: "Next Week",
+            }, value: 'Next Week',
             id: week < account.currentWeek - 1 ? null : "dontShow" })
     );
 };
 //view for child accounts
 var ChildShow = function ChildShow(props) {
     return React.createElement(
-        "div",
-        { className: "baseView" },
+        'div',
+        { className: 'baseView' },
         React.createElement(
-            "h1",
+            'h1',
             null,
-            "This screen is only available for your parent"
+            'This screen is only available for your parent'
         )
     );
 };
 //shows subscribe view for non-subscribers
 var SubscribeView = function SubscribeView(props) {
     return React.createElement(
-        "div",
-        { className: "historySubView" },
+        'div',
+        { className: 'historySubView' },
         React.createElement(
-            "h1",
+            'h1',
             null,
-            "History is only available for subscribers"
+            'History is only available for subscribers'
         ),
         React.createElement(
-            "h3",
+            'h3',
             null,
-            "A subscription is only $10 a year!"
+            'A subscription is only $10 a year!'
         ),
         React.createElement(
-            "p",
+            'p',
             null,
-            "What do I get?"
+            'What do I get?'
         ),
         React.createElement(
-            "p",
+            'p',
             null,
-            "+ Access to history"
+            '+ Access to history'
         ),
         React.createElement(
-            "p",
+            'p',
             null,
-            "+ No ads"
+            '+ No ads'
         ),
         React.createElement(
-            "a",
-            { id: "setLinkPass", href: "/account" },
-            "Go Subscribe!"
+            'a',
+            { id: 'setLinkPass', href: '/account' },
+            'Go Subscribe!'
         )
     );
 };
@@ -341,7 +401,7 @@ var showViews = function showViews(csrf) {
         }
         ReactDOM.render(React.createElement(Controls, null), document.querySelector('#header'));
         ReactDOM.render(React.createElement(LinkedAccounts, { csrf: csrf }), document.querySelector('#children'));
-        ReactDOM.render(React.createElement(DomoListDay, { csrf: csrf, domos: [] }), document.querySelector('#main'));
+        ReactDOM.render(React.createElement(DomoListView, { csrf: csrf, domos: [] }), document.querySelector('#main'));
     }
 };
 //grabs account and sets week and views up
@@ -372,6 +432,7 @@ var hideCount = 0;
 //shows error message
 var handleError = function handleError(message) {
     var change = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    var quick = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
     $("#errorMessage").text(message);
     $("#domoMessage").animate({ height: 'toggle' }, 350);
@@ -380,7 +441,9 @@ var handleError = function handleError(message) {
     errorMessage.style.color = change ? '#1cc425' : 'red';
 
     hideCount++;
-    setTimeout(hideError, 5000);
+
+    var time = quick ? 1500 : 5000;
+    setTimeout(hideError, time);
 };
 
 //hides error window

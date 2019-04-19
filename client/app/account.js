@@ -1,4 +1,22 @@
 let account = {};
+
+const handleUnlink = function(e, child)
+{
+    e.preventDefault();
+
+    let token = document.querySelector('#csrfToken').value;
+    let data = `user=${child.username}&_csrf=${token}`;
+
+    sendAjax('POST', '/unlinkChild', data, (err) =>{
+        if (!err.status)
+        {
+            handleError("Something went wrong");
+        }
+
+        loadLinkedAccounts();
+    });
+};
+
 //shows linked accounts view
 const LinkedAccounts = function(props)
 {
@@ -16,6 +34,9 @@ const LinkedAccounts = function(props)
         return(
             <div key={child._id} className="childAccount">
                 <h3>Account: {child.username}</h3>
+                <input type="submit" className="makeDomoSubmit linkPassSubmit"
+                id="unlinkButton"
+                onClick={(e) => handleUnlink(e, child)} value="Unlink"/>
             </div>
         );
     });
