@@ -10,9 +10,9 @@ const loginPage = (req, res) => {
 const accountPage = (req, res) => {
   res.render('appAccount', { csrfToken: req.csrfToken() });
 };
-//renders the stats page
+// renders the stats page
 const statsPage = (req, res) => {
-  res.render('appStats', {csrfToken: req.csrfToken() });
+  res.render('appStats', { csrfToken: req.csrfToken() });
 };
 // logs out current user
 const logout = (req, res) => {
@@ -223,16 +223,18 @@ const getAllLinked = (request, response) => {
       return res.json({ status: false, error: err });
     }
 
-    let dataFiltered = [];
-    //filters recieved linked accounts to important data only
-    for (node in data)
-    {
-      let filteredNode = {
-        username: data[node].username,
-        type: data[node].type, 
-        subscription: data[node].subscription, 
-        link: data[node].link, 
-        id: data[node]._id
+    const dataFiltered = [];
+
+    // filters recieved linked accounts to important data only
+    for (let i = 0; i < data.length; i++) {
+      const node = data[i];
+
+      const filteredNode = {
+        username: node.username,
+        type: node.type,
+        subscription: node.subscription,
+        link: node.link,
+        id: node._id,
       };
       dataFiltered.push(filteredNode);
     }

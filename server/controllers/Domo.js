@@ -84,7 +84,7 @@ const updateCompleted = (request, response) => {
 const sortDomosByWeek = (res, domos, week, user = null) => {
   const domosForWeek = [];
   for (let i = 0; i < domos.length; i++) {
-    if (`${domos[i].weekSet}` === `${week}` || `${week}` === `-1`) {
+    if (`${domos[i].weekSet}` === `${week}` || `${week}` === '-1') {
       if (user !== null && domos[i].childSet) {
         if (domos[i].childSet === user) {
           domosForWeek.push(domos[i]);
@@ -148,7 +148,6 @@ const setupNewWeek = (request, response) => {
     const error = null;
 
     for (let i = 0; i < domos.length; i++) {
-      console.log(`test: ${domos[i].type} - ${domos[i].completed}`);
       if (domos[i].type === 'recurring' ||
          (domos[i].type === 'single' && domos[i].completed === 'false')) {
         const domoData = {
