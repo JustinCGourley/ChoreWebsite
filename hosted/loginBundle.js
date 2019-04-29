@@ -238,3 +238,10 @@ var AdView = function AdView(props) {
 var ShowAds = function ShowAds() {
     ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
 };
+
+var testNavBar = function testNavBar(accountType) {
+    if (accountType === "Child") {
+        document.querySelector('#navHistory').style.display = 'none';
+        document.querySelector('#navStats').style.display = 'none';
+    }
+};

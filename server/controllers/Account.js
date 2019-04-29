@@ -10,6 +10,10 @@ const loginPage = (req, res) => {
 const accountPage = (req, res) => {
   res.render('appAccount', { csrfToken: req.csrfToken() });
 };
+//renders the stats page
+const statsPage = (req, res) => {
+  res.render('appStats', {csrfToken: req.csrfToken() });
+};
 // logs out current user
 const logout = (req, res) => {
   req.session.destroy();
@@ -164,6 +168,7 @@ const getCurrentAccount = (request, response) => {
         }
 
         accountData.subscription = parentAccount.subscription;
+        accountData.linkName = parentAccount.username;
         return res.json({ data: accountData });
       });
     } else {
@@ -218,7 +223,21 @@ const getAllLinked = (request, response) => {
       return res.json({ status: false, error: err });
     }
 
-    return res.json({ status: true, data });
+    let dataFiltered = [];
+    //filters recieved linked accounts to important data only
+    for (node in data)
+    {
+      let filteredNode = {
+        username: data[node].username,
+        type: data[node].type, 
+        subscription: data[node].subscription, 
+        link: data[node].link, 
+        id: data[node]._id
+      };
+      dataFiltered.push(filteredNode);
+    }
+
+    return res.json({ status: true, data: dataFiltered });
   });
 };
 
@@ -280,3 +299,4 @@ module.exports.getLinked = getAllLinked;
 module.exports.changePass = changePass;
 module.exports.subscribe = subscribe;
 module.exports.unlinkChild = unlinkChild;
+module.exports.statsPage = statsPage;

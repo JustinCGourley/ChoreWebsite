@@ -95,7 +95,7 @@ var handleNextWeek = function handleNextWeek(e) {
         });
     });
 };
-
+//reload views to show either week or other category
 var changeView = function changeView(e, view) {
     if (view == 'week') {
         if (loadedWeek) {
@@ -334,8 +334,8 @@ var CompletedCheck = function CompletedCheck(props) {
             { className: props.completed !== 'false' ? "completedDesc domoIsCompleted" : "completedDesc domoNotCompleted" },
             props.completed !== 'false' ? "Completed by: " + props.completed : "Not Completed"
         ),
-        React.createElement("input", { type: "submit", onClick: props.onClick,
-            className: "completedSubmit makeDomoSubmit", value: props.completed === 'false' ? "Finish Chore" : "Undo" })
+        account.type === 'Parent' || account.type === 'Child' && props.completed === account.user || props.completed === 'false' ? React.createElement("input", { type: "submit", onClick: props.onClick,
+            className: "completedSubmit makeDomoSubmit", value: props.completed === 'false' ? "Finish Chore" : "Undo" }) : null
     );
 };
 //view for delete button on each chore
@@ -544,7 +544,7 @@ var DomoListDay = function DomoListDay(props) {
         )
     );
 };
-
+//shows list of chores
 var DomoListView = function DomoListView(props) {
     return React.createElement(
         "div",
@@ -645,6 +645,7 @@ var loadDomosFromServer = function loadDomosFromServer() {
 var setup = function setup(csrf) {
     sendAjax('GET', '/getCurrentAccount', null, function (result) {
         account = result.data;
+        testNavBar(account.type);
         if (account.subscription === false) {
             ShowAds();
         } else {
@@ -766,4 +767,11 @@ var AdView = function AdView(props) {
 //ran to show ads view
 var ShowAds = function ShowAds() {
     ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
+};
+
+var testNavBar = function testNavBar(accountType) {
+    if (accountType === "Child") {
+        document.querySelector('#navHistory').style.display = 'none';
+        document.querySelector('#navStats').style.display = 'none';
+    }
 };

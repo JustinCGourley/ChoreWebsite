@@ -72,3 +72,11 @@ const ShowAds = () => {
         <AdView />, document.querySelector('#ads')
     );
 };
+
+const testNavBar = (accountType) => {
+    if (accountType === "Child")
+    {
+        document.querySelector('#navHistory').style.display = 'none';
+        document.querySelector('#navStats').style.display = 'none';
+    }
+};

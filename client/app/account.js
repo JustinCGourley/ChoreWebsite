@@ -230,7 +230,7 @@ const FormView = function(props){
             </div>
             <div className="accountLinked accountSubview">
                 {account.type === 'Parent' ? <LinkPass csrf={props.csrf} /> : null}
-                {account.type === 'Child' ? <h3>Account linked to: {account.link}</h3> :
+                {account.type === 'Child' ? <h3>Account linked to: {account.linkName}</h3> :
                 <LinkedAccounts data={props.data} csrf={props.csrf}/>}
                 <br/>
             </div>
@@ -248,6 +248,7 @@ const setup = (csrf) => {
 
     sendAjax('GET', '/getCurrentAccount', null, (result) => {
         account = result.data;
+        testNavBar(account.type);
         showViews(csrf);
         if (account.type === 'Parent')
         {

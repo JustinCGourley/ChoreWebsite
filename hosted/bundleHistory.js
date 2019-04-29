@@ -355,7 +355,7 @@ var ChildShow = function ChildShow(props) {
 var SubscribeView = function SubscribeView(props) {
     return React.createElement(
         'div',
-        { className: 'historySubView' },
+        { className: 'historySubView mainViewSubbed' },
         React.createElement(
             'h1',
             null,
@@ -512,4 +512,11 @@ var AdView = function AdView(props) {
 //ran to show ads view
 var ShowAds = function ShowAds() {
     ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
+};
+
+var testNavBar = function testNavBar(accountType) {
+    if (accountType === "Child") {
+        document.querySelector('#navHistory').style.display = 'none';
+        document.querySelector('#navStats').style.display = 'none';
+    }
 };

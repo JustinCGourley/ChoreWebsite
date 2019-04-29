@@ -101,7 +101,7 @@ const handleNextWeek = (e) => {
         });
     });
 };
-
+//reload views to show either week or other category
 const changeView = (e, view) => {
     if (view == 'week')
     {
@@ -237,8 +237,15 @@ const CompletedCheck = (props) => {
             <h3 className = {(props.completed !== 'false') ? "completedDesc domoIsCompleted" : "completedDesc domoNotCompleted"} >
             {(props.completed !== 'false') ? `Completed by: ${props.completed}` : "Not Completed"}
             </h3>
+            {/* Only show the undo/finish chore button if account is type parent, or if 
+            the current child has completed the chore (or the chore isnt completed) */}
+            {(account.type === 'Parent' || 
+            (account.type === 'Child' && props.completed === account.user) ||
+            (props.completed === 'false')) ?
             <input type="submit" onClick={props.onClick} 
             className="completedSubmit makeDomoSubmit" value={(props.completed === 'false') ? "Finish Chore" : "Undo"}/>
+            : null
+            }
         </div>
     );
 };
@@ -383,7 +390,7 @@ const DomoListDay = function(props){
             </div>
     );
 };
-
+//shows list of chores
 const DomoListView = function(props) {
     return(
         <div className={(account.subscription) ? "mainViewSubbed" : "mainView"}>
@@ -473,6 +480,7 @@ const loadDomosFromServer = () => {
 const setup = function(csrf) {
     sendAjax('GET', '/getCurrentAccount', null, (result) => {
         account = result.data;
+        testNavBar(account.type);
         if (account.subscription === false)
         {
             ShowAds();

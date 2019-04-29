@@ -84,7 +84,7 @@ const updateCompleted = (request, response) => {
 const sortDomosByWeek = (res, domos, week, user = null) => {
   const domosForWeek = [];
   for (let i = 0; i < domos.length; i++) {
-    if (`${domos[i].weekSet}` === `${week}`) {
+    if (`${domos[i].weekSet}` === `${week}` || `${week}` === `-1`) {
       if (user !== null && domos[i].childSet) {
         if (domos[i].childSet === user) {
           domosForWeek.push(domos[i]);

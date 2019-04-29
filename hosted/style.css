@@ -647,3 +647,37 @@ input:focus{
 #otherViewButton{
     border-radius: 0px 10px 4px 0px;
 }
+
+.statsLinkedSubView{
+    background-color: lightgrey;
+    border: 2px solid #363838;
+    margin-left: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    min-height: 200px;
+}
+
+.statsLinkedSubView h3{
+    margin-left: 10px;
+}
+
+.statsSubView{
+    background-color: grey;
+    padding: 20px;
+    margin: 20px;
+    border: 2px solid black;
+}
+
+.statsMainView{
+    margin: auto;
+    width: 75%;
+}
+
+.googleChart{
+    display: inline-block;
+}
+
+.googleLinkChart{
+    float: right;
+}

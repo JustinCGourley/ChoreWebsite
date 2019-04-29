@@ -306,7 +306,7 @@ var FormView = function FormView(props) {
                 'h3',
                 null,
                 'Account linked to: ',
-                account.link
+                account.linkName
             ) : React.createElement(LinkedAccounts, { data: props.data, csrf: props.csrf }),
             React.createElement('br', null)
         )
@@ -323,6 +323,7 @@ var setup = function setup(csrf) {
 
     sendAjax('GET', '/getCurrentAccount', null, function (result) {
         account = result.data;
+        testNavBar(account.type);
         showViews(csrf);
         if (account.type === 'Parent') {
             loadLinkedAccounts();
@@ -430,4 +431,11 @@ var AdView = function AdView(props) {
 //ran to show ads view
 var ShowAds = function ShowAds() {
     ReactDOM.render(React.createElement(AdView, null), document.querySelector('#ads'));
+};
+
+var testNavBar = function testNavBar(accountType) {
+    if (accountType === "Child") {
+        document.querySelector('#navHistory').style.display = 'none';
+        document.querySelector('#navStats').style.display = 'none';
+    }
 };

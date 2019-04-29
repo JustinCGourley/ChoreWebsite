@@ -263,7 +263,7 @@ const ChildShow = (props) => {
 //shows subscribe view for non-subscribers
 const SubscribeView = (props) => {
     return(
-        <div className="historySubView">
+        <div className="historySubView mainViewSubbed">
             <h1>History is only available for subscribers</h1>
             <h3>A subscription is only $10 a year!</h3>
             <p>What do I get?</p>
